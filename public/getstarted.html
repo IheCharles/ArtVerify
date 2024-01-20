@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="getstarted.css">
+    <title>User Profile Creation</title>
+</head>
+<body>
+    <h1>User Profile Creation</h1>
+    <form >
+        <label for="profile-image">Profile Image:</label>
+        <input type="file" id="profile-image" name="profile-image" accept="image/*"><br><br>
+        
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" cols="50" required></textarea><br><br>
+        
+        <label for="link">Link:</label>
+        <input type="url" id="link" name="link" required><br><br>
+        
+        <Button  id='submit'> submit</Button>
+    </form>
+
+    <script type="module" src="getstarted.js"></script>
+</body>
+</html>

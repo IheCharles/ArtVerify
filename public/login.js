@@ -45,7 +45,7 @@ document.getElementById('sign-up-button').addEventListener('click', function() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const reenterPassword = document.getElementById('reenter-password').value;
-
+    const errorMessageElement = document.getElementById('error-message');
     if (password !== reenterPassword) {
         document.getElementById('error-message').textContent = 'Passwords do not match';
         return;
@@ -53,12 +53,12 @@ document.getElementById('sign-up-button').addEventListener('click', function() {
 
     setPersistence(auth, browserLocalPersistence)
       .then(() => {
-        return createUserWithEmailAndPassword(auth, email, password);
-      })
-      .then(() => {
+        createUserWithEmailAndPassword(auth, email, password).then(() => {
 
-        window.location.href = 'getstarted.html';
+          window.location.href = 'getstarted.html';
+        })
       })
+
       .catch((error) => {
         errorMessageElement.style.display = 'block';
         const errorCode = error.code;
@@ -70,6 +70,7 @@ document.getElementById('sign-up-button').addEventListener('click', function() {
 document.getElementById('sign-in-button').addEventListener('click', function() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const errorMessageElement = document.getElementById('error-message');
     setPersistence(auth, browserLocalPersistence)
       .then(() => {
 
