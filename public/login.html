@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="login.css">
+</head>
+<body>
+        
+    <form id="login-form">
+        <p id="error-message" style="display: none;">Error message goes here</p>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password" >
+        <input type="password" id="reenter-password" placeholder="Re-enter Password" style="display: none;">
+        <button type="button" id="sign-up-button" style="display: none;" >Sign Up</button>
+        <button type="button" id="sign-in-button" >Sign In</button>
+        <button class="googleButton" type="button" id="google-login-button">Google Login</button>
+        <p>Don't have an account? <a  id="signup-link">Sign up</a></p>
+
+    </form>
+
+    <script type="module" src="login.js"></script>
+    </body>
+    </html>
