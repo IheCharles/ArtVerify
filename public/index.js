@@ -1,7 +1,6 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
-
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js'
+import { getAuth, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { getFirestore,collection,getDocs, addDoc, setDoc,doc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'
 
 
 
@@ -84,7 +83,7 @@ document.getElementById('logoutButton').addEventListener('click', function() {
 	  console.error('Logout error:', error.message);
 	});
 });
-  
+const user = null
 auth.onAuthStateChanged(function(user) {
 	const welcomeElement = document.getElementById('welcome');
 	const logoutButtonElement = document.getElementById('logoutButton');
@@ -92,6 +91,12 @@ auth.onAuthStateChanged(function(user) {
 	  // User is signed in.
 	  welcomeElement.style.display = 'block';
 	  logoutButtonElement.style.display = 'block';
+	  user = 
+		const db = getFirestore(app);
+
+		setDoc(doc(db,'artist',user.uid),{title:'it'}).then(() => {
+	
+		});
 	} else {
 	  // No user is signed in.
 	  welcomeElement.style.display = 'none';
