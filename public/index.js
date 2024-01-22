@@ -74,32 +74,17 @@ gsap.to("circle", {
 	}
 });
 
-
-document.getElementById('logoutButton').addEventListener('click', function() {
-	auth.signOut().then(() => {
-	  // Sign-out successful.
-	}).catch((error) => {
-	  // An error happened.
-	  console.error('Logout error:', error.message);
-	});
-});
 const user = null
 auth.onAuthStateChanged(function(user) {
 	const welcomeElement = document.getElementById('welcome');
-	const logoutButtonElement = document.getElementById('logoutButton');
+
 	if (user) {
 	  // User is signed in.
 	  welcomeElement.style.display = 'block';
-	  logoutButtonElement.style.display = 'block';
-	  user = 
-		const db = getFirestore(app);
 
-		setDoc(doc(db,'artist',user.uid),{title:'it'}).then(() => {
-	
-		});
 	} else {
 	  // No user is signed in.
 	  welcomeElement.style.display = 'none';
-	  logoutButtonElement.style.display = 'none';
+
 	}
   });

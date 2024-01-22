@@ -4,8 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+        }
+        
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .profile-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .profile-description {
+            font-size: 18px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+    <div class="profile-container">
+        <img class="profile-image" src="pool.jpg" alt="Profile Image">
+        <h1 class="profile-name">Your Name</h1>
+        <p class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae justo sed nisl aliquet ultricies. Nullam auctor, nisl id lacinia tincidunt, nunc nisl aliquam nunc, vitae lacinia nunc nunc id lectus.</p>
+        <p class="profile-link"></p>
+        <button class="edit-button" onclick="window.location.href='getstarted.html'">Edit</button>
+    </div>
     
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { 
+          getAuth, 
+          setPersistence, 
+          browserLocalPersistence, 
+          createUserWithEmailAndPassword, 
+          signInWithEmailAndPassword, 
+          GoogleAuthProvider 
+        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+        import { 
+          getFirestore, 
+          collection, 
+          getDoc, 
+          addDoc, 
+          setDoc, 
+          doc 
+        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+        import { 
+          getStorage, 
+          ref, 
+          uploadBytesResumable, 
+          getDownloadURL
+        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc",
+            authDomain: "artify-22dff.firebaseapp.com",
+            projectId: "artify-22dff",
+            storageBucket: "artify-22dff.appspot.com",
+            messagingSenderId: "287489070433",
+            appId: "1:287489070433:web:83767829fbbb878168e120",
+            measurementId: "G-TVHZLDMK8L"
+        };
+        
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        let uid = null;
+
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                uid = user.uid;
+                
+                const docRef = doc(db, "artist", uid);
+                getDoc(docRef)
+                    .then((docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            fetch(data.profileImage)
+                                .then(response => response.blob())
+                                .then(blob => {
+                                    const imageUrl = URL.createObjectURL(blob);
+                                    document.querySelector('.profile-image').src = imageUrl;
+                                })
+                                .catch(error => {
+                                    console.error('Error downloading profile image:', error);
+                                });
+                            document.querySelector('.profile-name').innerText = data.username;
+                            document.querySelector('.profile-description').innerText = data.description;
+                            document.querySelector('.profile-link').innerText = data.link;
+                        } else {
+                            alert('You have not created a profile yet');
+                        }
+                    })
+                    .catch((error) => {
+                        console.log("Error getting document:", error);
+                    });
+            } else {
+                alert('You are not logged in');
+            }
+        });
+
+    </script>
 </body>
 </html>
