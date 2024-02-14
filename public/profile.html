@@ -1,132 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100vh;
-        }
-        
-        .profile-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .profile-name {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        
-        .profile-description {
-            font-size: 18px;
-            margin-top: 10px;
-            text-align: center;
-        }
+      body {
+        display: flex;
+        flex-direction: row; /* Ensures horizontal layout */
+        align-items: flex-start; /* Align items to the top */
+        justify-content: center; /* Center items horizontally */
+        height: 100vh;
+        box-sizing: border-box;
+        width: 100vw; /* Ensure the body covers the full viewport width */
+        margin: 0; /* Reset any default margins */
+        padding: 0; /* Reset any default padding */
+      }
+
+      .profile-container {
+        flex-basis: 33.33%; /* Allocate 1/3 of the parent container's width */
+        height: 100%; /* Take full height of the viewport */
+        overflow: auto; /* Enable scrolling if content overflows */
+        display: flex; /* Enable flexbox */
+        box-sizing: border-box;
+        flex-direction: column; /* Stack children vertically */
+        justify-content: center; /* Center children vertically */
+        align-items: center; /* Center children horizontally */
+      }
+      .card-container {
+        flex-grow: 1;
+        height: 100%;
+        overflow-x: hidden; /* Prevent horizontal scrollbar */
+        overflow-y: auto; /* Allow vertical scrolling if necessary */
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(250px, 1fr)
+        ); /* Dynamic columns based on content width */
+        gap: 20px; /* Adjust gap as needed */
+        padding: 20px; /* Ensure padding does not cause overflow */
+      }
+
+      .profile-container,
+      .card-container {
+        /* Ensure both containers can scroll independently if content overflows */
+        overflow: auto;
+        height: 100%; /* Take full height of the viewport */
+      }
+
+      .profile-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .profile-name {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      .profile-description {
+        font-size: 18px;
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      .edit-button {
+        margin-top: 10px;
+      }
+
+      .post-button {
+        margin-top: 10px;
+      }
+
+      .card {
+        width: 300px;
+        height: 200px;
+        background-color: lightgray;
+        margin-bottom: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="profile-container">
-        <img class="profile-image" src="pool.jpg" alt="Profile Image">
-        <h1 class="profile-name">Your Name</h1>
-        <p class="profile-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae justo sed nisl aliquet ultricies. Nullam auctor, nisl id lacinia tincidunt, nunc nisl aliquam nunc, vitae lacinia nunc nunc id lectus.</p>
-        <p class="profile-link"></p>
-        <button class="edit-button" onclick="window.location.href='getstarted.html'">Edit</button>
+      <img class="profile-image" src="pool.jpg" alt="Profile Image" />
+      <h1 class="profile-name">Your Name</h1>
+      <p class="profile-description">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae justo
+        sed nisl aliquet ultricies. Nullam auctor, nisl id lacinia tincidunt,
+        nunc nisl aliquam nunc, vitae lacinia nunc nunc id lectus.
+      </p>
+      <p class="profile-link"></p>
+      <button
+        class="edit-button"
+        onclick="window.location.href='getstarted.html'"
+      >
+        Edit
+      </button>
+      <button class="post-button" onclick="window.location.href='archive.html'">
+        Archive
+      </button>
     </div>
-    
+
+    <div class="card-container">
+      <!-- Add your card elements here -->
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+    </div>
+
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import { 
-          getAuth, 
-          setPersistence, 
-          browserLocalPersistence, 
-          createUserWithEmailAndPassword, 
-          signInWithEmailAndPassword, 
-          GoogleAuthProvider 
-        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-        import { 
-          getFirestore, 
-          collection, 
-          getDoc, 
-          addDoc, 
-          setDoc, 
-          doc 
-        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-        import { 
-          getStorage, 
-          ref, 
-          uploadBytesResumable, 
-          getDownloadURL
-        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc",
-            authDomain: "artify-22dff.firebaseapp.com",
-            projectId: "artify-22dff",
-            storageBucket: "artify-22dff.appspot.com",
-            messagingSenderId: "287489070433",
-            appId: "1:287489070433:web:83767829fbbb878168e120",
-            measurementId: "G-TVHZLDMK8L"
-        };
-        
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+      import {
+        getAuth,
+        setPersistence,
+        browserLocalPersistence,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        GoogleAuthProvider,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDoc,
+        addDoc,
+        setDoc,
+        doc,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+      import {
+        getStorage,
+        ref,
+        uploadBytesResumable,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-        let uid = null;
+      const firebaseConfig = {
+        apiKey: "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc",
+        authDomain: "artify-22dff.firebaseapp.com",
+        projectId: "artify-22dff",
+        storageBucket: "artify-22dff.appspot.com",
+        messagingSenderId: "287489070433",
+        appId: "1:287489070433:web:83767829fbbb878168e120",
+        measurementId: "G-TVHZLDMK8L",
+      };
 
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
-                uid = user.uid;
-                
-                const docRef = doc(db, "artist", uid);
-                getDoc(docRef)
-                    .then((docSnap) => {
-                        if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            fetch(data.profileImage)
-                                .then(response => response.blob())
-                                .then(blob => {
-                                    const imageUrl = URL.createObjectURL(blob);
-                                    document.querySelector('.profile-image').src = imageUrl;
-                                })
-                                .catch(error => {
-                                    console.error('Error downloading profile image:', error);
-                                });
-                            document.querySelector('.profile-name').innerText = data.username;
-                            document.querySelector('.profile-description').innerText = data.description;
-                            document.querySelector('.profile-link').innerText = data.link;
-                        } else {
-                            alert('You have not created a profile yet');
-                        }
-                    })
-                    .catch((error) => {
-                        console.log("Error getting document:", error);
-                    });
-            } else {
-                alert('You are not logged in');
-            }
-        });
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const storage = getStorage(app);
+      let uid = null;
 
+      auth.onAuthStateChanged(function (user) {
+        if (user) {
+          uid = user.uid;
+
+          const docRef = doc(db, "artist", uid);
+          getDoc(docRef)
+            .then((docSnap) => {
+              if (docSnap.exists()) {
+                const data = docSnap.data();
+                fetch(data.profileImage)
+                  .then((response) => response.blob())
+                  .then((blob) => {
+                    const imageUrl = URL.createObjectURL(blob);
+                    document.querySelector(".profile-image").src = imageUrl;
+                  })
+                  .catch((error) => {
+                    console.error("Error downloading profile image:", error);
+                  });
+                document.querySelector(".profile-name").innerText =
+                  data.username;
+                document.querySelector(".profile-description").innerText =
+                  data.description;
+                document.querySelector(".profile-link").innerText = data.link;
+              } else {
+                alert("You have not created a profile yet");
+              }
+            })
+            .catch((error) => {
+              console.log("Error getting document:", error);
+            });
+        } else {
+          alert("You are not logged in");
+        }
+      });
     </script>
-</body>
+  </body>
 </html>

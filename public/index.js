@@ -17,9 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-document.getElementById('nextPageButton').addEventListener('click', function() {
-    window.location.href = 'login.html'; // Replace with your desired URL
-  });
+
 let bubblez = SVG("#maskBubblez");
 let numOfBubblez = 50;
 
@@ -76,15 +74,24 @@ gsap.to("circle", {
 
 const user = null
 auth.onAuthStateChanged(function(user) {
-	const welcomeElement = document.getElementById('welcome');
+	const welcomeElement = document.getElementById('nextPageButton');
 
 	if (user) {
 	  // User is signed in.
-	  welcomeElement.style.display = 'block';
+	  welcomeElement.textContent = 'Profile';
 
 	} else {
 	  // No user is signed in.
-	  welcomeElement.style.display = 'none';
+	  welcomeElement.textContent = 'Login';
 
 	}
   });
+
+document.getElementById('nextPageButton').addEventListener('click', function() {
+	const welcomeElement = document.getElementById('nextPageButton');
+	if (welcomeElement.textContent === 'Login') {
+		window.location.href = 'login.html';
+	} else if (welcomeElement.textContent === 'Profile') {
+		window.location.href = 'profile.html';
+	}
+});

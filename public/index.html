@@ -1,95 +1,138 @@
-
 <!DOCTYPE html>
+
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RetrievalAI</title>
-    <link rel="stylesheet" type="text/css" href="index.css">
+    <link rel="stylesheet" type="text/css" href="index.css" />
 
     <script src="https://unpkg.co/gsap@3/dist/gsap.min.js"></script>
     <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.1.1/svg.min.js"></script>
     <style>
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-gap: 20px; /* Increased grid gap */
+        padding: 10px;
+      }
+
       .card {
         display: inline-block;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
+        width: 200px;
         background-color: #f5f5f5;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin: 5px;
+        margin: 10px; /* Adjusted margin */
         padding: 10px;
+        flex-shrink: 0;
       }
-    
+
       .card img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         border-radius: 5px;
-        margin-bottom: 5px;
+        margin-bottom: 5px; /* Update the margin-bottom value */
       }
-    
-      .card-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        grid-gap: 10px;
-        margin-top: 20px;
-      }
+
+
+      /* Responsive Card Sizes */
+      @media (max-width: 600px) {
+        .card {
+          width: 100%; /* full width on small screens */
+        }
     </style>
-    
-    
   </head>
   <body>
-    <svg id="bubblezSVG" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-
-      <mask id="maskBubblez">
-    
-      </mask>
-      <image mask="url(#maskBubblez)" preserveAspectRatio="xMidYMid slice" href="https://user-images.githubusercontent.com/1760227/186539545-2692dde8-9f09-45b2-bde4-042352f366d9.jpg" height="150" width="100" />
+    <svg
+      id="bubblezSVG"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <mask id="maskBubblez"></mask>
+      <image
+        mask="url(#maskBubblez)"
+        preserveAspectRatio="xMidYMid slice"
+        href="https://user-images.githubusercontent.com/1760227/186539545-2692dde8-9f09-45b2-bde4-042352f366d9.jpg"
+        height="150"
+        width="100"
+      />
     </svg>
-    <a id="welcome" href="profile.html">
-      <div >dashboard</div>
-    </a>
 
-
-
-    <div style="position: fixed; top: 0; right: 0; padding: 10px;">
-      <a href="mailto:cci29@drexel.edu" class="contact-button">Contact</a>
+    <div style="display: flex; justify-content: flex-end; padding: 10px">
+      <button id="nextPageButton" class="contact-button"></button>
+      <button class="contact-button" style="margin-left: 10px">About</button>
+      <a
+        href="mailto:cci29@drexel.edu"
+        class="contact-button"
+        style="margin-left: 10px"
+        >Contact</a
+      >
     </div>
-    <button id="nextPageButton" style="margin-top: 20px; padding: 10px 20px; font-size: 18px;">Login</button>
 
-    <div style="display: flex; justify-content: center; align-items: center; height: 70vh;">
-      <div style="text-align: center;">
+    <div
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70vh;
+      "
+    >
+      <div style="text-align: center">
         <div class="landing-page-header">
           <h1 class="landing-page-title">Artify</h1>
           <p class="landing-page-subtitle">Protect your art</p>
-        <div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
-          <input type="text" id="searchInput" placeholder="Enter search term" style="padding: 10px; font-size: 18px;">
-          <button id="searchImage" style="padding: 10px 20px; font-size: 18px;">Search</button>
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin-top: 20px;
+            "
+          >
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Enter search term"
+              style="padding: 10px; font-size: 18px"
+            />
+            <button
+              id="searchImage"
+              style="padding: 10px 20px; font-size: 18px"
+            >
+              Search
+            </button>
+          </div>
         </div>
       </div>
     </div>
-    </div>
 
-    <div id="cardContainer"></div>
-    
+    <div class="card-container" id="cardContainer"></div>
+
     <script>
       let start = 1;
       const perPage = 10;
       let isLoading = false;
 
+      document
+        .getElementById("searchInput")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            searchImages();
+          }
+        });
 
-      document.getElementById('searchInput').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
+      document
+        .getElementById("searchImage")
+        .addEventListener("click", function () {
           searchImages();
-        }
-      });
+        });
 
-      document.getElementById('searchImage').addEventListener('click', function() {
-        searchImages();
-      });
-      
       function searchImages() {
         start = 1;
         const searchTerm = document.getElementById("searchInput").value;
@@ -98,36 +141,41 @@
         const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
 
         // Clear the card container
-        const cardContainer = document.getElementById('cardContainer');
-        cardContainer.innerHTML = '';
+        const cardContainer = document.getElementById("cardContainer");
+        cardContainer.innerHTML = "";
 
         fetch(url)
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             // Handle the JSON response here
-            const images = data.items ? data.items.map(item => ({ link: item.link, title: item.title })) : [];
+            const images = data.items
+              ? data.items.map((item) => ({
+                  link: item.link,
+                  title: item.title,
+                }))
+              : [];
             displayImages(images);
             start += perPage;
           })
-          .catch(error => {
+          .catch((error) => {
             // Handle any errors here
             console.error(error);
           });
       }
 
       function displayImages(images) {
-        const cardContainer = document.getElementById('cardContainer');
+        const cardContainer = document.getElementById("cardContainer");
 
-        images.forEach(image => {
-          const card = document.createElement('div');
-          card.classList.add('card');
+        images.forEach((image) => {
+          const card = document.createElement("div");
+          card.classList.add("card");
 
-          const img = document.createElement('img');
+          const img = document.createElement("img");
           img.src = image.link;
           img.alt = image.title;
 
           // Check if the image link returns a 404 error
-          img.addEventListener('error', function() {
+          img.addEventListener("error", function () {
             cardContainer.removeChild(card);
           });
 
@@ -145,31 +193,36 @@
         var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
         var cx = "a665304788edd4dd0";
         const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
-      
+
         fetch(url)
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             // Handle the JSON response here
-            const images = data.items ? data.items.map(item => ({ link: item.link, title: item.title })) : [];
+            const images = data.items
+              ? data.items.map((item) => ({
+                  link: item.link,
+                  title: item.title,
+                }))
+              : [];
             displayImages(images);
             start += perPage;
             isLoading = false;
           })
-          .catch(error => {
+          .catch((error) => {
             // Handle any errors here
             console.error(error);
             isLoading = false;
           });
       }
 
-      window.addEventListener('scroll', function() {
-        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      window.addEventListener("scroll", function () {
+        const { scrollTop, scrollHeight, clientHeight } =
+          document.documentElement;
         if (scrollTop + clientHeight >= scrollHeight - 5) {
           loadMoreImages();
         }
       });
-      
     </script>
-    <script type='module' src="index.js"></script>
+    <script type="module" src="index.js"></script>
   </body>
 </html>
