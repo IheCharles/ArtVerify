@@ -29,20 +29,22 @@
       }
       .card-container {
         flex-grow: 1;
-        height: 100%;
+        height: 50%;
+        width: 50%;
+        margin:'10em 0em 0em 0em'
         overflow-x: hidden; /* Prevent horizontal scrollbar */
         overflow-y: auto; /* Allow vertical scrolling if necessary */
         display: grid;
+        overflow: auto;
         grid-template-columns: repeat(
           auto-fill,
-          minmax(250px, 1fr)
+          minmax(200px, 1fr)
         ); /* Dynamic columns based on content width */
-        gap: 20px; /* Adjust gap as needed */
+        gap: 10px; /* Adjust gap as needed */
         padding: 20px; /* Ensure padding does not cause overflow */
       }
 
-      .profile-container,
-      .card-container {
+      .profile-container {
         /* Ensure both containers can scroll independently if content overflows */
         overflow: auto;
         height: 100%; /* Take full height of the viewport */
@@ -76,11 +78,22 @@
       }
 
       .card {
-        width: 300px;
-        height: 200px;
+        width: 200px;
+        height: 150px;
         background-color: lightgray;
-        margin-bottom: 10px;
+        margin-bottom: 0px;
       }
+      
+      .add-card {
+      width: 200px;
+      height: 150px;
+      background-color: #f0f0f0; /* Light grey, adjust as needed */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px; /* Large plus sign */
+      cursor: pointer;
+    }
     </style>
   </head>
   <body>
@@ -106,16 +119,11 @@
 
     <div class="card-container">
       <!-- Add your card elements here -->
-      <div class="card"></div>
-      <div class="card"></div>
-      <div class="card"></div>
-      <div class="card"></div>
-      <div class="card"></div>
-      <div class="card"></div>
-      <div class="card"></div>
+      <div class="add-card">+</div>
     </div>
 
     <script type="module">
+      
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
       import {
         getAuth,
@@ -155,6 +163,23 @@
       const db = getFirestore(app);
       const storage = getStorage(app);
       let uid = null;
+
+      const cardContainer = document.querySelector('.card-container');
+
+      function addCard() {
+        // Create a new card element
+        const newCard = document.createElement('div');
+        newCard.classList.add('card');
+        newCard.textContent = 'New Card'; // Placeholder text, customize as needed
+
+        // Insert the new card before the add card
+        const addCard = document.querySelector('.add-card');
+        cardContainer.insertBefore(newCard, addCard);
+      }
+
+      // Add click event listener to the add card
+      const addCardButton = document.querySelector('.add-card');
+      addCardButton.addEventListener('click', addCard);
 
       auth.onAuthStateChanged(function (user) {
         if (user) {
