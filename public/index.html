@@ -11,41 +11,77 @@
     <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.1.1/svg.min.js"></script>
     <style>
-      .card-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        grid-gap: 20px; /* Increased grid gap */
-        padding: 10px;
-      }
+            .card-container {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              grid-gap: 20px; /* Increased grid gap */
+              padding: 10px;
+            }
 
-      .card {
-        display: inline-block;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 200px;
-        background-color: #f5f5f5;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin: 10px; /* Adjusted margin */
-        padding: 10px;
-        flex-shrink: 0;
-      }
+            .card {
+              display: inline-block;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              width: 200px;
+              background-color: #f5f5f5;
+              border-radius: 10px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              margin: 10px; /* Adjusted margin */
+              padding: 10px;
+              flex-shrink: 0;
+            }
 
-      .card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 5px;
-        margin-bottom: 5px; /* Update the margin-bottom value */
-      }
+            .card img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              border-radius: 5px;
+              margin-bottom: 5px; /* Update the margin-bottom value */
+            }
+        .searchbar-container {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+
+              justify-content: center;
+              height: 45vh;
+              width: 100%;
+            }
+
+            .landing-page-title {
+            font-family: "Roboto", sans-serif;
+            font-size: 100px;
+            text-align: center;
+      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+
+            font-weight: 700;
+            color: #ffbfd7;
+            line-height: 1.2;
+            }
 
 
-      /* Responsive Card Sizes */
-      @media (max-width: 600px) {
-        .card {
-          width: 100%; /* full width on small screens */
-        }
+
+            .searchbar {
+              margin-left: auto;  /* Center the search bar horizontally */
+              margin-right: auto; /* Center the search bar horizontally */
+              max-width: 700px;   /* Set a maximum width */
+              width: 100%;
+              padding: 10px;
+              border-radius: 20px;
+              font-size: 18px;
+               border: 2px solid #ffbfd7;
+            }
+            .searchbar:focus {
+                outline: none; /* Removes the default focus outline */
+                border-color: #ffbfd7; /* Keeps the border color pink when focused */
+              }
+
+            /* Responsive Card Sizes */
+            @media (max-width: 600px) {
+              .card {
+                width: 100%; /* full width on small screens */
+              }
     </style>
   </head>
   <body>
@@ -75,154 +111,18 @@
       >
     </div>
 
-    <div
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 70vh;
-      "
-    >
-      <div style="text-align: center">
-        <div class="landing-page-header">
-          <h1 class="landing-page-title">Artify</h1>
-          <p class="landing-page-subtitle">Protect your art</p>
-          <div
-            style="
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              margin-top: 20px;
-            "
-          >
-            <input
-              type="text"
-              id="searchInput"
-              placeholder="Enter search term"
-              style="padding: 10px; font-size: 18px"
-            />
-            <button
-              id="searchImage"
-              style="padding: 10px 20px; font-size: 18px"
-            >
-              Search
-            </button>
-          </div>
-        </div>
-      </div>
+    <div class="searchbar-container">
+      <h1 class="landing-page-title">Goliad</h1>
+      <input
+        type="text"
+        class="searchbar"
+        id="searchInput"
+        placeholder="Enter search term"
+      />
     </div>
 
     <div class="card-container" id="cardContainer"></div>
 
-    <script>
-      let start = 1;
-      const perPage = 10;
-      let isLoading = false;
-
-      document
-        .getElementById("searchInput")
-        .addEventListener("keydown", function (event) {
-          if (event.key === "Enter") {
-            searchImages();
-          }
-        });
-
-      document
-        .getElementById("searchImage")
-        .addEventListener("click", function () {
-          searchImages();
-        });
-
-      function searchImages() {
-        start = 1;
-        const searchTerm = document.getElementById("searchInput").value;
-        var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
-        var cx = "a665304788edd4dd0";
-        const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
-
-        // Clear the card container
-        const cardContainer = document.getElementById("cardContainer");
-        cardContainer.innerHTML = "";
-
-        fetch(url)
-          .then((response) => response.json())
-          .then((data) => {
-            // Handle the JSON response here
-            const images = data.items
-              ? data.items.map((item) => ({
-                  link: item.link,
-                  title: item.title,
-                }))
-              : [];
-            displayImages(images);
-            start += perPage;
-          })
-          .catch((error) => {
-            // Handle any errors here
-            console.error(error);
-          });
-      }
-
-      function displayImages(images) {
-        const cardContainer = document.getElementById("cardContainer");
-
-        images.forEach((image) => {
-          const card = document.createElement("div");
-          card.classList.add("card");
-
-          const img = document.createElement("img");
-          img.src = image.link;
-          img.alt = image.title;
-
-          // Check if the image link returns a 404 error
-          img.addEventListener("error", function () {
-            cardContainer.removeChild(card);
-          });
-
-          card.appendChild(img);
-          cardContainer.appendChild(card);
-        });
-      }
-
-      function loadMoreImages() {
-        if (isLoading) return;
-        isLoading = true;
-
-        const searchTerm = document.getElementById("searchInput").value;
-        if (!searchTerm) return;
-        var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
-        var cx = "a665304788edd4dd0";
-        const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
-
-        fetch(url)
-          .then((response) => response.json())
-          .then((data) => {
-            // Handle the JSON response here
-            const images = data.items
-              ? data.items.map((item) => ({
-                  link: item.link,
-                  title: item.title,
-                }))
-              : [];
-            displayImages(images);
-            start += perPage;
-            isLoading = false;
-          })
-          .catch((error) => {
-            // Handle any errors here
-            console.error(error);
-            isLoading = false;
-          });
-      }
-
-      window.addEventListener("scroll", function () {
-        const { scrollTop, scrollHeight, clientHeight } =
-          document.documentElement;
-        if (scrollTop + clientHeight >= scrollHeight - 5) {
-          loadMoreImages();
-        }
-      });
-    </script>
     <script type="module" src="index.js"></script>
   </body>
 </html>

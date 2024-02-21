@@ -31,7 +31,7 @@
         flex-grow: 1;
         height: 50%;
         width: 50%;
-        margin:'10em 0em 0em 0em'
+        margin: "10em 0em 0em 0em";
         overflow-x: hidden; /* Prevent horizontal scrollbar */
         overflow-y: auto; /* Allow vertical scrolling if necessary */
         display: grid;
@@ -42,6 +42,13 @@
         ); /* Dynamic columns based on content width */
         gap: 10px; /* Adjust gap as needed */
         padding: 20px; /* Ensure padding does not cause overflow */
+      }
+      .profile-container,
+      .card-container {
+        /* Consistent Shadow */
+        box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+          0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+          0px 1px 10px 0px rgba(0, 0, 0, 0.12);
       }
 
       .profile-container {
@@ -55,6 +62,7 @@
         height: 150px;
         border-radius: 50%;
         object-fit: cover;
+        border: 3px solid #bbdefb;
       }
 
       .profile-name {
@@ -67,6 +75,10 @@
         font-size: 18px;
         margin-top: 10px;
         text-align: center;
+      }
+      .card,
+      .add-card {
+        border-radius: 4px;
       }
 
       .edit-button {
@@ -82,21 +94,148 @@
         height: 150px;
         background-color: lightgray;
         margin-bottom: 0px;
+        background-color: #f5f5f5;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
-      
+
       .add-card {
-      width: 200px;
-      height: 150px;
-      background-color: #f0f0f0; /* Light grey, adjust as needed */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px; /* Large plus sign */
-      cursor: pointer;
-    }
+        width: 200px;
+        height: 150px;
+        background-color: #f0f0f0; /* Light grey, adjust as needed */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px; /* Large plus sign */
+        cursor: pointer;
+      }
+      .card-popup {
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0); /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+      }
+      .card-click-popup {
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0); /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+      }
+
+      .popup-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border-radius: 4px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+      }
+
+      .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close-button:hover,
+      .close-button:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .image-upload-container {
+        margin: 20px 0;
+        padding: 10px;
+        border: 2px dashed #ccc;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .image-upload-container:hover {
+        background-color: #f8f8f8;
+      }
+
+      .media-upload-container {
+        margin: 20px 0;
+        padding: 10px;
+        border: 2px dashed #ccc;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .media-upload-container:hover {
+        background-color: #f8f8f8;
+      }
     </style>
   </head>
   <body>
+    <div id="cardClickPopup" class="card-click-popup" style="display: none">
+      <div class="popup-content">
+        <h2 id="cardClickPopup-cardTitle">Title</h2>
+        <img
+          id="cardClickPopup-cardImage"
+          style="display: none; max-width: 100%; max-height: 200px"
+        />
+        <h2 id="cardClickPopup-cardDescription">description</h2>
+        <h2 id="cardClickPopup-cardOwner">Owner</h2>
+        <button id="close-cardClickPopup-button">exit</button>
+        <button id="delete-cardClickPopup-button">delete</button>
+      </div>
+    </div>
+    <div id="cardPopup" class="card-popup" style="display: none">
+      <div class="popup-content">
+        <span class="close-button">&times;</span>
+        <h2>Add New Card</h2>
+        <input
+          type="text"
+          id="cardTitle"
+          placeholder="Title"
+          style="width: 100%; padding: 8px; margin-bottom: 10px"
+        />
+        <!-- Description input -->
+        <textarea
+          id="cardDescription"
+          placeholder="Description"
+          style="width: 100%; padding: 8px; margin-bottom: 10px"
+          rows="4"
+        ></textarea>
+        <!-- Div for image upload -->
+        <div id="imageUploadContainer" class="image-upload-container">
+          <span>Click to upload image</span>
+          <img
+            id="previewImage"
+            style="display: none; max-width: 100%; max-height: 200px"
+          />
+          <input
+            type="file"
+            id="imageInput"
+            accept="image/*"
+            style="display: none"
+          />
+        </div>
+        <div id="mediaUploadContainer" class="media-upload-container">
+          <span>Click to upload media (Image, Video, Text, Audio)</span>
+          <input
+            type="file"
+            id="mediaInput"
+            accept="image/*,video/*,audio/*,text/plain"
+            style="display: none"
+          />
+        </div>
+        <button id="saveCard">Save</button>
+      </div>
+    </div>
     <div class="profile-container">
       <img class="profile-image" src="pool.jpg" alt="Profile Image" />
       <h1 class="profile-name">Your Name</h1>
@@ -117,13 +256,12 @@
       </button>
     </div>
 
-    <div class="card-container">
+    <div id="card-container" class="card-container">
       <!-- Add your card elements here -->
       <div class="add-card">+</div>
     </div>
 
     <script type="module">
-      
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
       import {
         getAuth,
@@ -139,12 +277,16 @@
         getDoc,
         addDoc,
         setDoc,
+        updateDoc,
+        deleteDoc,
+        arrayUnion,
         doc,
       } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
       import {
         getStorage,
         ref,
         uploadBytesResumable,
+        uploadBytes,
         getDownloadURL,
       } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
@@ -162,34 +304,290 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
       const storage = getStorage(app);
+      let username = null;
+      let description = null;
+      let profileImage = null;
+      let link = null;
       let uid = null;
+      let postIds = [];
+      let currentPostId = null;
+      document
+        .getElementById("mediaUploadContainer")
+        .addEventListener("click", function () {
+          document.getElementById("mediaInput").click();
+        });
 
-      const cardContainer = document.querySelector('.card-container');
+      document
+        .getElementById("mediaInput")
+        .addEventListener("change", function (event) {
+          const file = event.target.files[0];
+          if (file) {
+            // Check file size
+            const fileSizeMB = file.size / 1024 / 1024; // Size in MB
+            if (fileSizeMB > 300) {
+              alert(
+                "File size exceeds 300 MB limit. Please choose a smaller file."
+              );
+              return; // Stop further execution
+            }
+          }
+        });
+      document
+        .getElementById("imageUploadContainer")
+        .addEventListener("click", function () {
+          document.getElementById("imageInput").click();
+        });
 
-      function addCard() {
-        // Create a new card element
-        const newCard = document.createElement('div');
-        newCard.classList.add('card');
-        newCard.textContent = 'New Card'; // Placeholder text, customize as needed
+      document
+        .getElementById("imageInput")
+        .addEventListener("change", function (event) {
+          if (event.target.files && event.target.files[0]) {
+            const reader = new FileReader();
 
-        // Insert the new card before the add card
-        const addCard = document.querySelector('.add-card');
-        cardContainer.insertBefore(newCard, addCard);
+            reader.onload = function (e) {
+              document.getElementById("previewImage").src = e.target.result;
+              document.getElementById("previewImage").style.display = "block";
+            };
+
+            reader.readAsDataURL(event.target.files[0]);
+          }
+        });
+
+      document
+        .querySelector(".add-card")
+        .addEventListener("click", function () {
+          document.getElementById("cardPopup").style.display = "block";
+        });
+
+      document
+        .querySelector(".close-button")
+        .addEventListener("click", function () {
+          document.getElementById("cardPopup").style.display = "none";
+          document.getElementById("previewImage").style.display = "none"; // Hide image preview when closing popup
+          document.getElementById("previewImage").src = ""; // Remove the src to clear the preview
+        });
+
+      document
+        .getElementById("saveCard")
+        .addEventListener("click", function () {
+          const title = document.getElementById("cardTitle").value;
+          const postDescription =
+            document.getElementById("cardDescription").value;
+          const imageFile = document.getElementById("imageInput").files[0];
+          const mediaFile = document.getElementById("mediaInput").files[0];
+
+          // Validate fields are not empty and at least one file is selected
+          if (
+            !title.trim() ||
+            !description.trim() ||
+            (!imageFile && !mediaFile)
+          ) {
+            alert("Please fill all fields and select at least one file.");
+            return;
+          }
+          let formInformation = {};
+          formInformation.title = title;
+          formInformation.description = postDescription;
+          formInformation.uid = uid;
+          formInformation.username = username;
+
+          let userInformation = {};
+          userInformation.username = username;
+          userInformation.profileImage = profileImage;
+          userInformation.description = description;
+          userInformation.link = link;
+          userInformation.posts = postIds;
+          // document.querySelector(".profile-name").innerText;
+          uploadBytesResumable(
+            ref(storage, "images/" + imageFile.name),
+            imageFile
+          )
+            .then((snapshot) => {
+              getDownloadURL(snapshot.ref).then((url) => {
+                formInformation.Image = url;
+                uploadBytesResumable(
+                  ref(storage, "media/" + mediaFile.name),
+                  mediaFile
+                )
+                  .then((snapshot) => {
+                    getDownloadURL(snapshot.ref).then((media_url) => {
+                      formInformation.media_url = media_url;
+
+                      addDoc(collection(db, "database"), formInformation)
+                        .then((docRef) => {
+                          userInformation.posts.push(docRef.id);
+                          setDoc(doc(db, "artist", uid), userInformation)
+                            .then(() => {
+                              addCard(
+                                formInformation.title,
+                                formInformation.Image,
+                                docRef.id
+                              );
+
+                              document.getElementById(
+                                "cardPopup"
+                              ).style.display = "none";
+                              clearPopupFields();
+                            })
+                            .catch((error) => {
+                              console.error("Upload failed", error);
+                            });
+                        })
+                        .catch((error) => {
+                          console.error("Upload failed", error);
+                        });
+                    });
+                  })
+                  .catch((error) => {
+                    console.error("Upload failed", error);
+                  });
+              });
+            })
+            .catch((error) => {
+              console.error("Upload failed", error);
+            });
+        });
+
+      document
+        .getElementById("close-cardClickPopup-button")
+        .addEventListener("click", function () {
+          currentPostId = null;
+          hidePopup();
+        });
+
+      document
+        .getElementById("delete-cardClickPopup-button")
+        .addEventListener("click", function () {
+          let userInformation = {};
+          postIds = postIds.filter((item) => item !== currentPostId);
+          userInformation.username = username;
+          userInformation.profileImage = profileImage;
+          userInformation.description = description;
+          userInformation.link = link;
+          userInformation.posts = postIds;
+          const docRef = doc(db, "database", currentPostId);
+          deleteDoc(docRef)
+            .then(() => {
+              setDoc(doc(db, "artist", uid), userInformation).catch((error) => {
+                console.error("Upload failed", error);
+              });
+
+              const cardContainer = document.getElementById("card-container");
+              const cardToRemove = cardContainer.querySelector(
+                `div[postid="${currentPostId}"]`
+              );
+
+              if (cardContainer && cardToRemove) {
+                cardContainer.removeChild(cardToRemove);
+              } else {
+                console.log("Element not found");
+              }
+            })
+            .catch((error) => {
+              console.error("Upload failed", error);
+            });
+
+          hidePopup();
+        });
+      function hidePopup() {
+        document.getElementById("cardClickPopup").style.display = "none";
       }
 
-      // Add click event listener to the add card
-      const addCardButton = document.querySelector('.add-card');
-      addCardButton.addEventListener('click', addCard);
+      function showPopup(postId) {
+        currentPostId = postId;
+        document.getElementById("cardClickPopup").style.display = "block";
+
+        const cardTitle = document.getElementById("cardClickPopup-cardTitle");
+        const cardDescription = document.getElementById(
+          "cardClickPopup-cardDescription"
+        );
+        const cardImage = document.getElementById("cardClickPopup-cardImage");
+        const cardOwner = document.getElementById("cardClickPopup-cardOwner");
+        const docRef = doc(db, "database", postId);
+        getDoc(docRef).then((docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            let title = data.title;
+            let image = data.Image;
+            let description = data.description;
+            let username = data.username;
+            if (document.getElementById("cardClickPopup-cardTitle") == null) {
+              console.log("isnull");
+            }
+            cardImage.src = image;
+            cardImage.style.maxWidth = "100%";
+            cardImage.style.maxHeight = "150px";
+
+            cardTitle.textContent = title;
+          }
+        });
+      }
+
+      function addCard(title, imageSrc, postid) {
+        const cardContainer = document.querySelector(".card-container");
+        const newCard = document.createElement("div");
+        newCard.classList.add("card");
+
+        const titleElement = document.createElement("h3");
+        titleElement.textContent = title;
+        newCard.appendChild(titleElement);
+        newCard.addEventListener("click", function (event) {
+          showPopup(postid);
+        });
+
+        const imgElement = document.createElement("img");
+        imgElement.src = imageSrc;
+        imgElement.style.maxWidth = "100%";
+        imgElement.style.maxHeight = "100%";
+        newCard.appendChild(imgElement);
+        newCard.setAttribute("postid", postid);
+        const addCard = document.querySelector(".add-card");
+        document
+          .querySelector(".card-container")
+          .insertBefore(newCard, addCard);
+      }
+
+      function clearPopupFields() {
+        document.getElementById("cardTitle").value = "";
+        document.getElementById("cardDescription").value = "";
+        document.getElementById("previewImage").style.display = "none";
+        document.getElementById("previewImage").src = "";
+      }
+
+      function populateCardContainer() {
+        for (const post of postIds) {
+          const postRef = doc(db, "database", post);
+          getDoc(postRef)
+            .then((docSnap) => {
+              if (docSnap.exists()) {
+                const postData = docSnap.data();
+
+                let title = postData.title;
+                let image = postData.Image;
+                addCard(title, image, post);
+              }
+            })
+            .catch((error) => {
+              console.log("Error getting document:", error);
+            });
+        }
+      }
 
       auth.onAuthStateChanged(function (user) {
         if (user) {
           uid = user.uid;
-
           const docRef = doc(db, "artist", uid);
           getDoc(docRef)
             .then((docSnap) => {
               if (docSnap.exists()) {
                 const data = docSnap.data();
+
+                username = data.username;
+                description = data.description;
+                profileImage = data.profileImage;
+                link = data.link;
+                postIds = data.posts;
+
                 fetch(data.profileImage)
                   .then((response) => response.blob())
                   .then((blob) => {
@@ -204,6 +602,7 @@
                 document.querySelector(".profile-description").innerText =
                   data.description;
                 document.querySelector(".profile-link").innerText = data.link;
+                populateCardContainer();
               } else {
                 alert("You have not created a profile yet");
               }

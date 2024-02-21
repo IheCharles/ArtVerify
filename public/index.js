@@ -1,9 +1,30 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js'
-import { getAuth, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { getFirestore,collection,getDocs, addDoc, setDoc,doc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'
-
-
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDoc,
+  addDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  arrayUnion,
+  doc,
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 const firebaseConfig = {
   apiKey: "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc",
   authDomain: "artify-22dff.firebaseapp.com",
@@ -11,87 +32,247 @@ const firebaseConfig = {
   storageBucket: "artify-22dff.appspot.com",
   messagingSenderId: "287489070433",
   appId: "1:287489070433:web:83767829fbbb878168e120",
-  measurementId: "G-TVHZLDMK8L"
+  measurementId: "G-TVHZLDMK8L",
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-
+const db = getFirestore(app);
+const storage = getStorage(app);
 let bubblez = SVG("#maskBubblez");
 let numOfBubblez = 50;
 
 let circles = [{ x: 0, y: 0, radius: 0 }];
 
 for (let i = 0; i < numOfBubblez; i++) {
-	function drawCircleWithoutOverlap() {
-		let newX = gsap.utils.random(0, 100);
-		let newY = gsap.utils.random(0, 200);
-		let newRadius = gsap.utils.random(4, 20);
-		let newCircle = { x: newX, y: newY, radius: newRadius };
-		let isOverlapping = false;
+  function drawCircleWithoutOverlap() {
+    let newX = gsap.utils.random(0, 100);
+    let newY = gsap.utils.random(0, 200);
+    let newRadius = gsap.utils.random(4, 20);
+    let newCircle = { x: newX, y: newY, radius: newRadius };
+    let isOverlapping = false;
 
-		circles.forEach((circle, i) => {
-			let deltaX = newCircle.x - circles[i].x;
-			let deltaY = newCircle.y - circles[i].y;
-			let dist = Math.hypot(deltaX, deltaY);
-			let radiiiis = circles[i].radius + newCircle.radius;
+    circles.forEach((circle, i) => {
+      let deltaX = newCircle.x - circles[i].x;
+      let deltaY = newCircle.y - circles[i].y;
+      let dist = Math.hypot(deltaX, deltaY);
+      let radiiiis = circles[i].radius + newCircle.radius;
 
-			if (dist < radiiiis) {
-				isOverlapping = true;
-			}
-		});
+      if (dist < radiiiis) {
+        isOverlapping = true;
+      }
+    });
 
-		if (isOverlapping) {
-			drawCircleWithoutOverlap();
-		} else {
-			bubblez
-				.circle(newCircle.radius)
-				.x(newCircle.x)
-				.y(newCircle.y)
-				.fill("#fff")
-				.opacity(newCircle.radius / 20);
+    if (isOverlapping) {
+      drawCircleWithoutOverlap();
+    } else {
+      bubblez
+        .circle(newCircle.radius)
+        .x(newCircle.x)
+        .y(newCircle.y)
+        .fill("#fff")
+        .opacity(newCircle.radius / 20);
 
-			circles.push(newCircle);
-		}
-	}
+      circles.push(newCircle);
+    }
+  }
 
-	drawCircleWithoutOverlap();
+  drawCircleWithoutOverlap();
 }
 
 gsap.registerPlugin(ScrollTrigger);
 
 gsap.to("circle", {
-	y: () => 1 - gsap.utils.random(0.1, 0.4) * (ScrollTrigger.maxScroll(window)/4),
-	ease: "none",
-	scrollTrigger: {
-		start: 0,
-		end: "max",
-		invalidateOnRefresh: true,
-		scrub: 2
-	}
+  y: () =>
+    1 - gsap.utils.random(0.1, 0.4) * (ScrollTrigger.maxScroll(window) / 4),
+  ease: "none",
+  scrollTrigger: {
+    start: 0,
+    end: "max",
+    invalidateOnRefresh: true,
+    scrub: 2,
+  },
 });
 
-const user = null
-auth.onAuthStateChanged(function(user) {
-	const welcomeElement = document.getElementById('nextPageButton');
+const user = null;
+auth.onAuthStateChanged(function (user) {
+  const welcomeElement = document.getElementById("nextPageButton");
 
-	if (user) {
-	  // User is signed in.
-	  welcomeElement.textContent = 'Profile';
+  if (user) {
+    // User is signed in.
+    welcomeElement.textContent = "Profile";
+  } else {
+    // No user is signed in.
+    welcomeElement.textContent = "Login";
+  }
+});
 
-	} else {
-	  // No user is signed in.
-	  welcomeElement.textContent = 'Login';
-
-	}
+document
+  .getElementById("nextPageButton")
+  .addEventListener("click", function () {
+    const welcomeElement = document.getElementById("nextPageButton");
+    if (welcomeElement.textContent === "Login") {
+      window.location.href = "login.html";
+    } else if (welcomeElement.textContent === "Profile") {
+      window.location.href = "profile.html";
+    }
   });
 
-document.getElementById('nextPageButton').addEventListener('click', function() {
-	const welcomeElement = document.getElementById('nextPageButton');
-	if (welcomeElement.textContent === 'Login') {
-		window.location.href = 'login.html';
-	} else if (welcomeElement.textContent === 'Profile') {
-		window.location.href = 'profile.html';
-	}
+let start = 1;
+const perPage = 10;
+let isLoading = false;
+
+document
+  .getElementById("searchInput")
+  .addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      searchDatabaseImage().then((postList) => {
+        displayImages(postList);
+        searchImages();
+      });
+    }
+  });
+
+function searchImages() {
+  start = 1;
+  const searchTerm = document.getElementById("searchInput").value;
+  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
+  var cx = "a665304788edd4dd0";
+  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
+
+  // Clear the card container
+  const cardContainer = document.getElementById("cardContainer");
+
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      // Handle the JSON response here
+      const images = data.items
+        ? data.items.map((item) => ({
+            link: item.link,
+            title: item.title,
+          }))
+        : [];
+      displayImages(images);
+      start += perPage;
+    })
+    .catch((error) => {
+      // Handle any errors here
+      console.error(error);
+    });
+}
+
+function displayImages(images) {
+  const cardContainer = document.getElementById("cardContainer");
+
+  images.forEach((image) => {
+    console.log(image.title);
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    const img = document.createElement("img");
+    img.src = image.link;
+    img.alt = image.title;
+
+    // Check if the image link returns a 404 error
+    img.addEventListener("error", function () {
+      cardContainer.removeChild(card);
+    });
+
+    card.appendChild(img);
+    cardContainer.appendChild(card);
+  });
+}
+function loadMoreImages() {
+  if (isLoading) return;
+  isLoading = true;
+
+  const searchTerm = document.getElementById("searchInput").value;
+  if (!searchTerm) return;
+  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
+  var cx = "a665304788edd4dd0";
+  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
+
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      // Handle the JSON response here
+      const images = data.items
+        ? data.items.map((item) => ({
+            link: item.link,
+            title: item.title,
+          }))
+        : [];
+      displayImages(images);
+      start += perPage;
+      isLoading = false;
+    })
+    .catch((error) => {
+      // Handle any errors here
+      console.error(error);
+      isLoading = false;
+    });
+}
+
+window.addEventListener("scroll", function () {
+  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+  if (scrollTop + clientHeight >= scrollHeight - 5) {
+    //loadMoreImages();
+  }
 });
+
+async function searchDatabaseImage() {
+  const API_KEY = "b24f6db5b074d956b3a2be18bf263f0f";
+  const APPLICATION_ID = "M8UVF5EX0F";
+  const searchTerm = document.getElementById("searchInput").value;
+  const url = `https://${APPLICATION_ID}-dsn.algolia.net/1/indexes/database/query`;
+  let postList = [];
+
+  const headers = {
+    "X-Algolia-API-Key": API_KEY,
+    "X-Algolia-Application-Id": APPLICATION_ID,
+    "Content-Type": "application/json",
+  };
+
+  const data = {
+    params: "query=" + searchTerm + "&hitsPerPage=2&getRankingInfo=1",
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+    });
+    const searchData = await response.json();
+
+    if (searchData.hits && searchData.hits.length > 0) {
+      for (const hit of searchData.hits) {
+        const postRef = doc(db, "database", hit.objectID);
+        try {
+          const docSnap = await getDoc(postRef);
+          if (docSnap.exists()) {
+            const postData = docSnap.data();
+
+            let title = postData.title;
+            let image = postData.Image;
+            let description = postData.description;
+            let postUID = postData.uid;
+            let media_url = postData.media_url;
+            let username = postData.username;
+
+            postList.push({ link: image, title: title });
+          }
+        } catch (error) {
+          console.log("Error getting document:", error);
+        }
+      }
+    } else {
+      console.log("No hits found");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+
+  return postList;
+}
