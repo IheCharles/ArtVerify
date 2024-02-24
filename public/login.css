@@ -1,60 +1,72 @@
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
 }
 
 #login-form {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+#signup-link {
+  color: blue;
+  text-decoration: none; /* Optional: removes underline from link */
+}
+
+#signup-link:hover {
+  text-decoration: underline; /* Optional: adds underline on hover */
+}
+
 .googleButton {
-    display: inline-block;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    background-color: #4285F4;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #ffbfd7;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .googleButton:hover {
-    background-color: #3367D6;
+  background-color: #ffbfd7;
 }
 
 .googleButton:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3);
 }
 
 input {
-    display: block;
-    margin: 10px 0;
-    padding: 10px;
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+  display: block;
+  margin: 10px 0;
+  padding: 5px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #ffbfd7;
+  color: white;
+  cursor: pointer;
 }
 
 button:hover {
-    background-color: #0056b3;
+  background-color: #ffbfd7;
 }

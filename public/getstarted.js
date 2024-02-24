@@ -58,14 +58,14 @@ auth.onAuthStateChanged(function (user) {
           setUpButtonEventListeners();
           // Use the values of username, description, profileImage, and link here
         } else {
-          alert("You have not created a profile yet");
+          console.log("You have not created a profile yet");
         }
       })
       .catch((error) => {
         console.log("Error getting document:", error);
       });
   } else {
-    alert("You are not logged in");
+    console.log("You are not logged in");
   }
 });
 
@@ -124,7 +124,7 @@ function setUpButtonEventListeners() {
         console.error("Error creating profile:", error);
       }
     } else {
-      alert("You are not logged in");
+      console.log("You are not logged in");
     }
   });
 

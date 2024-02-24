@@ -6,7 +6,6 @@
     <title>Profile</title>
     <style>
       body {
-        display: flex;
         flex-direction: row; /* Ensures horizontal layout */
         align-items: flex-start; /* Align items to the top */
         justify-content: center; /* Center items horizontally */
@@ -15,6 +14,29 @@
         width: 100vw; /* Ensure the body covers the full viewport width */
         margin: 0; /* Reset any default margins */
         padding: 0; /* Reset any default padding */
+      }
+      .navbar {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #ffbfd7; /* Dark background */
+      }
+
+      .navbar li {
+        float: left; /* Align items horizontally */
+      }
+
+      .navbar li a {
+        display: block;
+        color: white; /* Text color */
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+      }
+
+      .navbar li a:hover {
+        background-color: #111; /* Change color on hover */
       }
 
       .profile-container {
@@ -26,11 +48,12 @@
         flex-direction: column; /* Stack children vertically */
         justify-content: center; /* Center children vertically */
         align-items: center; /* Center children horizontally */
+        width: 100%;
       }
       .card-container {
         flex-grow: 1;
-        height: 50%;
-        width: 50%;
+        height: auto;
+        width: 100%;
         margin: "10em 0em 0em 0em";
         overflow-x: hidden; /* Prevent horizontal scrollbar */
         overflow-y: auto; /* Allow vertical scrolling if necessary */
@@ -45,16 +68,14 @@
       }
       .profile-container,
       .card-container {
-        /* Consistent Shadow */
-        box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
-          0px 4px 5px 0px rgba(0, 0, 0, 0.14),
-          0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+        margin-top: 50px; /* Adjust as needed */
       }
 
       .profile-container {
         /* Ensure both containers can scroll independently if content overflows */
         overflow: auto;
-        height: 100%; /* Take full height of the viewport */
+        height: 100%;
+        width: 100%; /* Take full height of the viewport */
       }
 
       .profile-image {
@@ -62,7 +83,7 @@
         height: 150px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid #bbdefb;
+        border: 3px solid #dddddd;
       }
 
       .profile-name {
@@ -73,7 +94,7 @@
 
       .profile-description {
         font-size: 18px;
-        margin-top: 10px;
+        margin: 10px;
         text-align: center;
       }
       .card,
@@ -91,19 +112,23 @@
 
       .card {
         width: 200px;
-        height: 150px;
+        height: 200px;
         background-color: lightgray;
         margin-bottom: 0px;
-        background-color: #f5f5f5;
+
         border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.173);
+        overflow: hidden;
       }
 
       .add-card {
         width: 200px;
-        height: 150px;
+        height: 200px;
         background-color: #f0f0f0; /* Light grey, adjust as needed */
         display: flex;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.173);
+        border-radius: 10px;
         justify-content: center;
         align-items: center;
         font-size: 24px; /* Large plus sign */
@@ -114,6 +139,7 @@
         z-index: 1; /* Sit on top */
         left: 0;
         top: 0;
+
         width: 100%; /* Full width */
         height: 100%; /* Full height */
         overflow: auto; /* Enable scroll if needed */
@@ -134,11 +160,12 @@
 
       .popup-content {
         background-color: #fefefe;
-        margin: 15% auto; /* 15% from the top and centered */
-        padding: 20px;
-        border-radius: 4px;
+        margin: 5% auto; /* 15% from the top and centered */
+        padding: 50px;
+
+        border-radius: 10px;
         border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
+        width: 50%; /* Could be more or less, depending on screen size */
       }
 
       .close-button {
@@ -154,11 +181,29 @@
         text-decoration: none;
         cursor: pointer;
       }
+      .content-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr; /* Adjust the ratio as needed */
+        gap: 10px; /* Space between columns */
+      }
       .image-upload-container {
         margin: 20px 0;
         padding: 10px;
         border: 2px dashed #ccc;
         text-align: center;
+        cursor: pointer;
+      }
+
+      .saveCard {
+        width: 10%;
+        padding: 10px;
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffbfd7;
+        color: white;
         cursor: pointer;
       }
 
@@ -177,20 +222,76 @@
       .media-upload-container:hover {
         background-color: #f8f8f8;
       }
+
+      .logout-button {
+        width: 25%;
+        padding: 10px;
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffbfd7;
+        color: white;
+        cursor: pointer;
+      }
+
+      .edit-button {
+        width: 25%;
+        padding: 10px;
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffbfd7;
+        color: white;
+        cursor: pointer;
+      }
+      .greyed-out {
+        filter: grayscale(100%);
+      }
+      #delete-cardClickPopup-button {
+        width: 10%;
+        padding: 10px;
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffbfd7;
+        color: white;
+        cursor: pointer;
+      }
+      #close-cardClickPopup-button {
+        width: 10%;
+        padding: 10px;
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffbfd7;
+        color: white;
+        cursor: pointer;
+      }
     </style>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="cardClickPopup" class="card-click-popup" style="display: none">
       <div class="popup-content">
+        <img id="cardClickPopup-cardImage" />
         <h2 id="cardClickPopup-cardTitle">Title</h2>
-        <img
-          id="cardClickPopup-cardImage"
-          style="display: none; max-width: 100%; max-height: 200px"
-        />
         <h2 id="cardClickPopup-cardDescription">description</h2>
-        <h2 id="cardClickPopup-cardOwner">Owner</h2>
+
         <button id="close-cardClickPopup-button">exit</button>
-        <button id="delete-cardClickPopup-button">delete</button>
+        <button id="delete-cardClickPopup-button" style="visibility: hidden">
+          delete
+        </button>
       </div>
     </div>
     <div id="cardPopup" class="card-popup" style="display: none">
@@ -233,32 +334,40 @@
             style="display: none"
           />
         </div>
-        <button id="saveCard">Save</button>
+        <button class="saveCard" id="saveCard">Save</button>
       </div>
     </div>
-    <div class="profile-container">
-      <img class="profile-image" src="pool.jpg" alt="Profile Image" />
-      <h1 class="profile-name">Your Name</h1>
-      <p class="profile-description">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae justo
-        sed nisl aliquet ultricies. Nullam auctor, nisl id lacinia tincidunt,
-        nunc nisl aliquam nunc, vitae lacinia nunc nunc id lectus.
-      </p>
-      <p class="profile-link"></p>
-      <button
-        class="edit-button"
-        onclick="window.location.href='getstarted.html'"
-      >
-        Edit
-      </button>
-      <button class="post-button" onclick="window.location.href='archive.html'">
-        Archive
-      </button>
-    </div>
+    <div class="content-container">
+      <div class="profile-container">
+        <img class="profile-image" src="pool.jpg" alt="Profile Image" />
+        <h1 class="profile-name">Your Name</h1>
+        <p class="profile-description">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae
+          justo sed nisl aliquet ultricies. Nullam auctor, nisl id lacinia
+          tincidunt, nunc nisl aliquam nunc, vitae lacinia nunc nunc id lectus.
+        </p>
+        <p class="profile-link"></p>
+        <button
+          class="edit-button"
+          style="visibility: hidden"
+          id="editButton"
+          onclick="window.location.href='getstarted.html'"
+        >
+          Edit
+        </button>
+        <button
+          style="visibility: hidden"
+          id="logoutButton"
+          class="logout-button"
+        >
+          Logout
+        </button>
+      </div>
 
-    <div id="card-container" class="card-container">
-      <!-- Add your card elements here -->
-      <div class="add-card">+</div>
+      <div id="card-container" class="card-container">
+        <!-- Add your card elements here -->
+        <div class="add-card">+</div>
+      </div>
     </div>
 
     <script type="module">
@@ -268,6 +377,7 @@
         setPersistence,
         browserLocalPersistence,
         createUserWithEmailAndPassword,
+        signOut,
         signInWithEmailAndPassword,
         GoogleAuthProvider,
       } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
@@ -309,8 +419,22 @@
       let profileImage = null;
       let link = null;
       let uid = null;
+      const params = new URLSearchParams(window.location.search);
+      const incomingId = params.get("key");
       let postIds = [];
       let currentPostId = null;
+
+      document
+        .getElementById("logoutButton")
+        .addEventListener("click", function () {
+          signOut(auth)
+            .then(() => {
+              window.location.href = "index.html";
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        });
       document
         .getElementById("mediaUploadContainer")
         .addEventListener("click", function () {
@@ -390,6 +514,8 @@
           formInformation.description = postDescription;
           formInformation.uid = uid;
           formInformation.username = username;
+          formInformation.verified = false;
+          formInformation.timestamp = Date.now();
 
           let userInformation = {};
           userInformation.username = username;
@@ -397,6 +523,7 @@
           userInformation.description = description;
           userInformation.link = link;
           userInformation.posts = postIds;
+
           // document.querySelector(".profile-name").innerText;
           uploadBytesResumable(
             ref(storage, "images/" + imageFile.name),
@@ -502,7 +629,6 @@
           "cardClickPopup-cardDescription"
         );
         const cardImage = document.getElementById("cardClickPopup-cardImage");
-        const cardOwner = document.getElementById("cardClickPopup-cardOwner");
         const docRef = doc(db, "database", postId);
         getDoc(docRef).then((docSnap) => {
           if (docSnap.exists()) {
@@ -511,25 +637,31 @@
             let image = data.Image;
             let description = data.description;
             let username = data.username;
-            if (document.getElementById("cardClickPopup-cardTitle") == null) {
-              console.log("isnull");
-            }
+
             cardImage.src = image;
             cardImage.style.maxWidth = "100%";
-            cardImage.style.maxHeight = "150px";
+            cardImage.style.maxHeight = "100%";
 
             cardTitle.textContent = title;
+            cardDescription.textContent = description;
           }
         });
       }
 
-      function addCard(title, imageSrc, postid) {
+      function addCard(title, imageSrc, postid, isVerified) {
         const cardContainer = document.querySelector(".card-container");
         const newCard = document.createElement("div");
         newCard.classList.add("card");
 
         const titleElement = document.createElement("h3");
         titleElement.textContent = title;
+
+        // Apply CSS styles to the titleElement
+        titleElement.style.color = "white"; // Makes the text color white
+        titleElement.style.fontSize = "16px"; // Sets the font size to 16px
+        titleElement.style.marginLeft = "10px";
+        titleElement.style.fontFamily = "Roboto, sans-serif";
+        titleElement.style.fontWeight = "bold";
         newCard.appendChild(titleElement);
         newCard.addEventListener("click", function (event) {
           showPopup(postid);
@@ -537,8 +669,13 @@
 
         const imgElement = document.createElement("img");
         imgElement.src = imageSrc;
-        imgElement.style.maxWidth = "100%";
-        imgElement.style.maxHeight = "100%";
+        imgElement.style.width = "100%";
+        imgElement.style.height = "100%";
+        imgElement.style.objectFit = "cover";
+        if (!isVerified) {
+          imgElement.classList.add("greyed-out");
+        }
+
         newCard.appendChild(imgElement);
         newCard.setAttribute("postid", postid);
         const addCard = document.querySelector(".add-card");
@@ -564,7 +701,8 @@
 
                 let title = postData.title;
                 let image = postData.Image;
-                addCard(title, image, post);
+                let isVerified = postData.verified;
+                addCard(title, image, post, isVerified);
               }
             })
             .catch((error) => {
@@ -574,9 +712,57 @@
       }
 
       auth.onAuthStateChanged(function (user) {
-        if (user) {
-          uid = user.uid;
-          const docRef = doc(db, "artist", uid);
+        if (incomingId == null) {
+          if (user) {
+            console.log("user");
+            var editb = document.getElementById("editButton");
+            var logoutb = document.getElementById("logoutButton");
+            var deletb = document.getElementById(
+              "delete-cardClickPopup-button"
+            );
+            editb.style.visibility = "visible";
+            logoutb.style.visibility = "visible";
+            deletb.style.visibility = "visible";
+            uid = user.uid;
+            const docRef = doc(db, "artist", uid);
+            getDoc(docRef)
+              .then((docSnap) => {
+                if (docSnap.exists()) {
+                  const data = docSnap.data();
+
+                  username = data.username;
+                  description = data.description;
+                  profileImage = data.profileImage;
+                  link = data.link;
+                  postIds = data.posts;
+
+                  fetch(data.profileImage)
+                    .then((response) => response.blob())
+                    .then((blob) => {
+                      const imageUrl = URL.createObjectURL(blob);
+                      document.querySelector(".profile-image").src = imageUrl;
+                    })
+                    .catch((error) => {
+                      console.error("Error downloading profile image:", error);
+                    });
+                  document.querySelector(".profile-name").innerText =
+                    data.username;
+                  document.querySelector(".profile-description").innerText =
+                    data.description;
+                  document.querySelector(".profile-link").innerText = data.link;
+                  populateCardContainer();
+                } else {
+                  alert("You have not created a profile yet");
+                }
+              })
+              .catch((error) => {
+                console.log("Error getting document:", error);
+              });
+          } else {
+            console.log("You are not logged in");
+          }
+        } else {
+          const docRef = doc(db, "artist", incomingId);
           getDoc(docRef)
             .then((docSnap) => {
               if (docSnap.exists()) {
@@ -610,8 +796,6 @@
             .catch((error) => {
               console.log("Error getting document:", error);
             });
-        } else {
-          alert("You are not logged in");
         }
       });
     </script>

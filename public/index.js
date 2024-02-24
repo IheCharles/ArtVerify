@@ -118,109 +118,229 @@ document
     }
   });
 
+document
+  .getElementById("AboutPageButton")
+  .addEventListener("click", function () {
+    window.location.href = "about.html";
+  });
 let start = 1;
 const perPage = 10;
 let isLoading = false;
+let currentPostId = null;
+let currentUrl = null;
 
 document
   .getElementById("searchInput")
-  .addEventListener("keydown", function (event) {
+  .addEventListener("keydown", async function (event) {
     if (event.key === "Enter") {
+      const cardContainer = document.getElementById("cardContainer");
+
+      while (cardContainer.firstChild) {
+        cardContainer.removeChild(cardContainer.firstChild);
+      }
       searchDatabaseImage().then((postList) => {
         displayImages(postList);
-        searchImages();
       });
+      await searchImages();
+      await loadMoreImages();
+      await loadMoreImages();
     }
   });
 
-function searchImages() {
-  start = 1;
+async function searchImages() {
   const searchTerm = document.getElementById("searchInput").value;
   var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
   var cx = "a665304788edd4dd0";
   const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
 
-  // Clear the card container
   const cardContainer = document.getElementById("cardContainer");
 
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      // Handle the JSON response here
-      const images = data.items
-        ? data.items.map((item) => ({
-            link: item.link,
-            title: item.title,
-          }))
-        : [];
-      displayImages(images);
-      start += perPage;
-    })
-    .catch((error) => {
-      // Handle any errors here
-      console.error(error);
-    });
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const images = data.items
+      ? data.items.map((item) => ({
+          link: item.link,
+          title: item.title,
+          thumb: item.image.thumbnailLink,
+          contextLink: item.image.contextLink,
+        }))
+      : [];
+    console.log(data.items);
+    displayImages(images);
+    start += perPage;
+  } catch (error) {
+    console.error("searchImages", error);
+  }
 }
 
-function displayImages(images) {
-  const cardContainer = document.getElementById("cardContainer");
-
-  images.forEach((image) => {
-    console.log(image.title);
-    const card = document.createElement("div");
-    card.classList.add("card");
-
-    const img = document.createElement("img");
-    img.src = image.link;
-    img.alt = image.title;
-
-    // Check if the image link returns a 404 error
-    img.addEventListener("error", function () {
-      cardContainer.removeChild(card);
-    });
-
-    card.appendChild(img);
-    cardContainer.appendChild(card);
-  });
-}
-function loadMoreImages() {
+async function loadMoreImages() {
   if (isLoading) return;
   isLoading = true;
 
   const searchTerm = document.getElementById("searchInput").value;
-  if (!searchTerm) return;
+  if (!searchTerm) {
+    isLoading = false;
+    return;
+  }
   var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
   var cx = "a665304788edd4dd0";
   const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
 
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      // Handle the JSON response here
-      const images = data.items
-        ? data.items.map((item) => ({
-            link: item.link,
-            title: item.title,
-          }))
-        : [];
-      displayImages(images);
-      start += perPage;
-      isLoading = false;
-    })
-    .catch((error) => {
-      // Handle any errors here
-      console.error(error);
-      isLoading = false;
-    });
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const images = data.items
+      ? data.items.map((item) => ({
+          link: item.link,
+          title: item.title,
+          thumb: item.image.thumbnailLink,
+          contextLink: item.image.contextLink,
+        }))
+      : [];
+
+    displayImages(images);
+    start += perPage;
+  } catch (error) {
+    console.error("loadMoreImages", error);
+  } finally {
+    isLoading = false;
+  }
 }
 
+document
+  .getElementById("close-cardClickPopup-button")
+  .addEventListener("click", function () {
+    currentPostId = null;
+    currentUrl = null;
+    hidePopup();
+  });
+
+document
+  .getElementById("src-cardClickPopup-button")
+  .addEventListener("click", function () {
+    if (currentUrl.includes("http")) {
+      window.open(currentUrl);
+    } else {
+      openNewPageWithParams("profile.html", {
+        key: currentUrl,
+      });
+    }
+  });
+function hidePopup() {
+  document.getElementById("cardClickPopup").style.display = "none";
+}
+
+function showGooglePopup(image) {
+  document.getElementById("cardClickPopup").style.display = "block";
+
+  const cardTitle = document.getElementById("cardClickPopup-cardTitle");
+  const cardDescription = document.getElementById(
+    "cardClickPopup-cardDescription"
+  );
+  const cardImage = document.getElementById("cardClickPopup-cardImage");
+
+  currentUrl = image.contextLink;
+  cardImage.src = image.link;
+  cardImage.style.maxWidth = "100%";
+  cardImage.style.maxHeight = "100%";
+
+  cardTitle.textContent = image.title;
+}
+function showPopup(postId) {
+  currentPostId = postId;
+
+  console.log("postid", postId);
+  document.getElementById("cardClickPopup").style.display = "block";
+
+  const cardTitle = document.getElementById("cardClickPopup-cardTitle");
+  const cardDescription = document.getElementById(
+    "cardClickPopup-cardDescription"
+  );
+  const cardImage = document.getElementById("cardClickPopup-cardImage");
+  const docRef = doc(db, "database", postId);
+  getDoc(docRef)
+    .then((docSnap) => {
+      console.log(docSnap);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        let title = data.title;
+        let image = data.Image;
+        let description = data.description;
+        let username = data.username;
+        currentUrl = data.uid;
+        cardImage.src = image;
+        cardImage.style.maxWidth = "100%";
+        cardImage.style.maxHeight = "100%";
+
+        cardTitle.textContent = title;
+        cardDescription.textContent = description;
+      } else {
+        console.log("docsnap does not exist");
+      }
+    })
+    .catch((error) => {
+      console.log("Error getting document:", error);
+    });
+}
+function displayImages(images) {
+  const cardContainer = document.getElementById("cardContainer");
+
+  images.forEach((image) => {
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.setAttribute("postObject", JSON.stringify(image));
+    console.log(image);
+    card.addEventListener("click", function (event) {
+      if (image.contextLink.includes("http")) {
+        showGooglePopup(image);
+      } else {
+        showPopup(image.contextLink);
+      }
+    });
+
+    const img = document.createElement("img");
+    img.addEventListener("error", function () {
+      cardContainer.removeChild(card);
+    });
+    img.src = image.link;
+    fetchImageAndSetSrc(image.link).then((statusCode) => {
+      if (statusCode == 404) {
+        cardContainer.removeChild(card);
+      }
+    });
+
+    const titleElement = document.createElement("div");
+    titleElement.classList.add("card-title");
+    titleElement.textContent = image.title;
+
+    card.appendChild(img);
+    card.appendChild(titleElement);
+    cardContainer.appendChild(card);
+  });
+}
+async function fetchImageAndSetSrc(url) {
+  const response = await fetch(url);
+
+  return response.status;
+}
 window.addEventListener("scroll", function () {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
   if (scrollTop + clientHeight >= scrollHeight - 5) {
-    //loadMoreImages();
+    loadMoreImages();
   }
 });
+function openNewPageWithParams(baseUrl, params) {
+  var queryParams = Object.keys(params)
+    .map(
+      (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+    )
+    .join("&");
 
+  var fullUrl = baseUrl + "?" + queryParams;
+
+  window.open(fullUrl, "_blank");
+}
 async function searchDatabaseImage() {
   const API_KEY = "b24f6db5b074d956b3a2be18bf263f0f";
   const APPLICATION_ID = "M8UVF5EX0F";
@@ -261,7 +381,11 @@ async function searchDatabaseImage() {
             let media_url = postData.media_url;
             let username = postData.username;
 
-            postList.push({ link: image, title: title });
+            postList.push({
+              link: image,
+              title: title,
+              contextLink: hit.objectID,
+            });
           }
         } catch (error) {
           console.log("Error getting document:", error);
