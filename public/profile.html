@@ -297,7 +297,7 @@
     <div id="cardPopup" class="card-popup" style="display: none">
       <div class="popup-content">
         <span class="close-button">&times;</span>
-        <h2>Add New Card</h2>
+        <h2>Add New Image</h2>
         <input
           type="text"
           id="cardTitle"
@@ -339,13 +339,9 @@
     </div>
     <div class="content-container">
       <div class="profile-container">
-        <img class="profile-image" src="pool.jpg" alt="Profile Image" />
-        <h1 class="profile-name">Your Name</h1>
-        <p class="profile-description">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae
-          justo sed nisl aliquet ultricies. Nullam auctor, nisl id lacinia
-          tincidunt, nunc nisl aliquam nunc, vitae lacinia nunc nunc id lectus.
-        </p>
+        <img class="profile-image" />
+        <h1 class="profile-name"></h1>
+        <p class="profile-description"></p>
         <p class="profile-link"></p>
         <button
           class="edit-button"
@@ -366,7 +362,13 @@
 
       <div id="card-container" class="card-container">
         <!-- Add your card elements here -->
-        <div class="add-card">+</div>
+        <div
+          class="add-card"
+          id="add-card-cardContainer"
+          style="visibility: hidden"
+        >
+          +
+        </div>
       </div>
     </div>
 
@@ -702,7 +704,9 @@
                 let title = postData.title;
                 let image = postData.Image;
                 let isVerified = postData.verified;
-                addCard(title, image, post, isVerified);
+                if (incomingId == null || (incomingId != null && isVerified)) {
+                  addCard(title, image, post, isVerified);
+                }
               }
             })
             .catch((error) => {
@@ -720,9 +724,13 @@
             var deletb = document.getElementById(
               "delete-cardClickPopup-button"
             );
+            var add_card_cardContainer = document.getElementById(
+              "add-card-cardContainer"
+            );
             editb.style.visibility = "visible";
             logoutb.style.visibility = "visible";
             deletb.style.visibility = "visible";
+            add_card_cardContainer.style.visibility = "visible";
             uid = user.uid;
             const docRef = doc(db, "artist", uid);
             getDoc(docRef)

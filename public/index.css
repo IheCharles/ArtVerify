@@ -105,9 +105,9 @@ svg {
   display: inline-block;
   padding: 8px 16px;
   margin: 4px;
-  border: 2px solid #ffbfd7;
+  border: 2px solid #ffb9d3;
   background-color: transparent;
-  color: #ffbfd7;
+  color: #ffb9d3;
   text-align: center;
   cursor: pointer;
   border-radius: 5px;
@@ -117,12 +117,6 @@ svg {
 }
 
 .contact-button:hover {
-  background-color: #ffbfd7;
+  background-color: #ffb9d3;
   color: white;
-}
-
-/* Try Playground Button Hover Effect */
-.try-playground-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

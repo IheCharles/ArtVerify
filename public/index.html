@@ -55,7 +55,7 @@
         align-items: center;
 
         justify-content: center;
-        height: 45vh;
+        height: 60vh;
         width: 100%;
       }
 
@@ -63,11 +63,22 @@
         font-family: "Roboto", sans-serif;
         font-size: 100px;
         text-align: center;
-        text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
+        text-shadow: -1px -1px 0 #fff, 2px -1px 0 #fff, -1px 1px 0 #fff,
           1px 1px 0 #fff;
 
         font-weight: 700;
-        color: #ffbfd7;
+        color: #ffb9d3;
+        line-height: 1.2;
+      }
+      .landing-page-subtitle {
+        font-family: "Roboto", sans-serif;
+        font-size: 50px;
+        text-align: center;
+        text-shadow: -1px -1px 0 #fff, 2px -1px 0 #fff, -1px 1px 0 #fff,
+          1px 1px 0 #fff;
+
+        font-weight: 700;
+        color: #ffb9d3;
         line-height: 1.2;
       }
 
@@ -77,6 +88,8 @@
         max-width: 700px; /* Set a maximum width */
         width: 100%;
         padding: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
         border-radius: 20px;
         font-size: 18px;
         border: 2px solid #ffbfd7;
@@ -145,8 +158,7 @@
       <div class="popup-content">
         <img id="cardClickPopup-cardImage" />
         <h2 id="cardClickPopup-cardTitle">Title</h2>
-        <button id="src-cardClickPopup-button">src</button>
-
+        <button id="src-cardClickPopup-button">source</button>
         <button id="close-cardClickPopup-button">exit</button>
       </div>
     </div>
@@ -168,13 +180,7 @@
 
     <div style="display: flex; justify-content: flex-end; padding: 10px">
       <button id="nextPageButton" class="contact-button"></button>
-      <button
-        id="AboutPageButton"
-        class="contact-button"
-        style="margin-left: 10px"
-      >
-        About
-      </button>
+
       <a
         href="mailto:cci29@drexel.edu"
         class="contact-button"
@@ -185,12 +191,10 @@
 
     <div class="searchbar-container">
       <h1 class="landing-page-title">Goliad</h1>
-      <input
-        type="text"
-        class="searchbar"
-        id="searchInput"
-        placeholder="Enter search term"
-      />
+      <h1 class="landing-page-subtitle">
+        search engine for human made content
+      </h1>
+      <input type="text" class="searchbar" id="searchInput" />
     </div>
 
     <div class="card-container" id="cardContainer"></div>

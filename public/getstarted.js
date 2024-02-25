@@ -59,6 +59,7 @@ auth.onAuthStateChanged(function (user) {
           // Use the values of username, description, profileImage, and link here
         } else {
           console.log("You have not created a profile yet");
+          setUpButtonEventListeners();
         }
       })
       .catch((error) => {

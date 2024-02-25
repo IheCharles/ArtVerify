@@ -107,6 +107,9 @@ auth.onAuthStateChanged(function (user) {
   }
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("searchInput").focus();
+});
 document
   .getElementById("nextPageButton")
   .addEventListener("click", function () {
@@ -118,22 +121,21 @@ document
     }
   });
 
-document
-  .getElementById("AboutPageButton")
-  .addEventListener("click", function () {
-    window.location.href = "about.html";
-  });
 let start = 1;
 const perPage = 10;
 let isLoading = false;
 let currentPostId = null;
 let currentUrl = null;
-
+let shouldLoadMoreImages = false;
+document.getElementById("searchInput").addEventListener("input", function () {
+  shouldLoadMoreImages = false;
+});
 document
   .getElementById("searchInput")
   .addEventListener("keydown", async function (event) {
     if (event.key === "Enter") {
       const cardContainer = document.getElementById("cardContainer");
+      shouldLoadMoreImages = true;
 
       while (cardContainer.firstChild) {
         cardContainer.removeChild(cardContainer.firstChild);
@@ -166,7 +168,7 @@ async function searchImages() {
           contextLink: item.image.contextLink,
         }))
       : [];
-    console.log(data.items);
+    //console.log(data.items);
     displayImages(images);
     start += perPage;
   } catch (error) {
@@ -175,7 +177,7 @@ async function searchImages() {
 }
 
 async function loadMoreImages() {
-  if (isLoading) return;
+  if (!shouldLoadMoreImages || isLoading) return;
   isLoading = true;
 
   const searchTerm = document.getElementById("searchInput").value;
@@ -250,7 +252,7 @@ function showGooglePopup(image) {
 function showPopup(postId) {
   currentPostId = postId;
 
-  console.log("postid", postId);
+  //console.log("postid", postId);
   document.getElementById("cardClickPopup").style.display = "block";
 
   const cardTitle = document.getElementById("cardClickPopup-cardTitle");
@@ -261,7 +263,7 @@ function showPopup(postId) {
   const docRef = doc(db, "database", postId);
   getDoc(docRef)
     .then((docSnap) => {
-      console.log(docSnap);
+      //console.log(docSnap);
       if (docSnap.exists()) {
         const data = docSnap.data();
         let title = data.title;
@@ -290,7 +292,7 @@ function displayImages(images) {
     const card = document.createElement("div");
     card.classList.add("card");
     card.setAttribute("postObject", JSON.stringify(image));
-    console.log(image);
+    //console.log(image);
     card.addEventListener("click", function (event) {
       if (image.contextLink.includes("http")) {
         showGooglePopup(image);
@@ -326,7 +328,7 @@ async function fetchImageAndSetSrc(url) {
 }
 window.addEventListener("scroll", function () {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-  if (scrollTop + clientHeight >= scrollHeight - 5) {
+  if (scrollTop + clientHeight >= scrollHeight - 50) {
     loadMoreImages();
   }
 });
@@ -380,12 +382,13 @@ async function searchDatabaseImage() {
             let postUID = postData.uid;
             let media_url = postData.media_url;
             let username = postData.username;
-
-            postList.push({
-              link: image,
-              title: title,
-              contextLink: hit.objectID,
-            });
+            if (postData.verified) {
+              postList.push({
+                link: image,
+                title: title,
+                contextLink: hit.objectID,
+              });
+            }
           }
         } catch (error) {
           console.log("Error getting document:", error);

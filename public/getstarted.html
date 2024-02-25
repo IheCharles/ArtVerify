@@ -1,29 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="getstarted.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="getstarted.css" />
     <title>User Profile Creation</title>
-</head>
-<body>
-    <h1>User Profile Creation</h1>
-    <form >
-        <label for="profile-image">Profile Image:</label>
-        <input type="file" id="profile-image" name="profile-image" accept="image/*"><br><br>
-        
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="4" cols="50" required></textarea><br><br>
-        
-        <label for="link">Link:</label>
-        <input type="url" id="link" name="link" required><br><br>
-        
-        <Button  id='submit'> submit</Button>
+    <style>
+      /* Center the header */
+      h1 {
+        text-align: center;
+      }
+
+      /* Center the form */
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+
+      /* Style for labels and inputs to ensure consistency */
+      label,
+      input,
+      textarea,
+      button {
+        margin-bottom: 10px;
+      }
+
+      /* Optional: Max width for the form to avoid stretching on very wide screens */
+      form {
+        max-width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>User Profile Edit/Creation</h1>
+    <form>
+      <label for="profile-image">Profile Image:</label>
+      <input
+        type="file"
+        id="profile-image"
+        name="profile-image"
+        accept="image/*"
+      /><br /><br />
+
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required /><br /><br />
+
+      <label for="description">Description:</label>
+      <textarea
+        id="description"
+        name="description"
+        rows="4"
+        cols="50"
+        required
+      ></textarea
+      ><br /><br />
+
+      <label for="link">Link(Twitter/Instagram/email etc):</label>
+      <input type="url" id="link" name="link" required /><br /><br />
+
+      <button id="submit">submit</button>
     </form>
-  
+
     <script type="module" src="getstarted.js"></script>
-</body>
+  </body>
 </html>
