@@ -25,6 +25,8 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc",
   authDomain: "artify-22dff.firebaseapp.com",
@@ -39,6 +41,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const analytics = getAnalytics(app);
+
 let bubblez = SVG("#maskBubblez");
 let numOfBubblez = 50;
 
@@ -122,11 +126,14 @@ document
   });
 
 let start = 1;
+let serpStart = 1;
 const perPage = 10;
 let isLoading = false;
 let currentPostId = null;
 let currentUrl = null;
+let previousSearchTerm = null;
 let shouldLoadMoreImages = false;
+let loadMoreCount = 0;
 document.getElementById("searchInput").addEventListener("input", function () {
   shouldLoadMoreImages = false;
 });
@@ -135,81 +142,79 @@ document
   .addEventListener("keydown", async function (event) {
     if (event.key === "Enter") {
       const cardContainer = document.getElementById("cardContainer");
+      const searchT = document.getElementById("searchInput").value;
       shouldLoadMoreImages = true;
+      serpStart = 1;
 
-      while (cardContainer.firstChild) {
-        cardContainer.removeChild(cardContainer.firstChild);
+      if (
+        searchT != null &&
+        searchT.trim() !== "" &&
+        previousSearchTerm != searchT + " before:2022"
+      ) {
+        while (cardContainer.firstChild) {
+          cardContainer.removeChild(cardContainer.firstChild);
+        }
+        document.getElementById("termsContainer").style.display = "none";
+        loadMoreCount = 0;
+        searchDatabaseImage().then((postList) => {
+          displayImages(postList);
+        });
+        await searchImages_serper();
+        /*await loadMoreImages();
+      await loadMoreImages();
+      await loadMoreImages();
+      await loadMoreImages();*/
       }
-      searchDatabaseImage().then((postList) => {
-        displayImages(postList);
-      });
-      await searchImages();
-      await loadMoreImages();
-      await loadMoreImages();
     }
   });
 
-async function searchImages() {
-  const searchTerm = document.getElementById("searchInput").value;
-  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
-  var cx = "a665304788edd4dd0";
-  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
+async function searchImages_serper() {
+  const searchTerm =
+    document.getElementById("searchInput").value + " before:2022";
+  previousSearchTerm = searchTerm;
+  var myHeaders = new Headers();
+  myHeaders.append("X-API-KEY", "5160e63fe264a319c1043d69f2eb13873aa44110");
+  myHeaders.append("Content-Type", "application/json");
+  previousSearchTerm;
+  var raw = JSON.stringify({
+    q: searchTerm,
+    num: 100,
+    page: serpStart,
+  });
 
-  const cardContainer = document.getElementById("cardContainer");
+  var requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow",
+  };
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(
+      "https://google.serper.dev/images",
+      requestOptions
+    );
     const data = await response.json();
-    const images = data.items
-      ? data.items.map((item) => ({
-          link: item.link,
+    serpStart += 1;
+    const images = data.images
+      ? data.images.map((item) => ({
+          link: item.imageUrl,
           title: item.title,
-          thumb: item.image.thumbnailLink,
-          contextLink: item.image.contextLink,
+          contextLink: item.link,
         }))
       : [];
     //console.log(data.items);
     displayImages(images);
-    start += perPage;
   } catch (error) {
     console.error("searchImages", error);
   }
 }
 
-async function loadMoreImages() {
-  if (!shouldLoadMoreImages || isLoading) return;
-  isLoading = true;
-
-  const searchTerm = document.getElementById("searchInput").value;
-  if (!searchTerm) {
-    isLoading = false;
-    return;
-  }
-  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
-  var cx = "a665304788edd4dd0";
-  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const images = data.items
-      ? data.items.map((item) => ({
-          link: item.link,
-          title: item.title,
-          thumb: item.image.thumbnailLink,
-          contextLink: item.image.contextLink,
-        }))
-      : [];
-
-    displayImages(images);
-    start += perPage;
-  } catch (error) {
-    console.error("loadMoreImages", error);
-  } finally {
-    isLoading = false;
-  }
-}
-
+document
+  .getElementById("cardClickPopup")
+  .addEventListener("click", function () {
+    hidePopup();
+  });
 document
   .getElementById("close-cardClickPopup-button")
   .addEventListener("click", function () {
@@ -326,12 +331,34 @@ async function fetchImageAndSetSrc(url) {
 
   return response.status;
 }
+let isListenerLoading = false; // Flag to indicate if loading is in progress
+
 window.addEventListener("scroll", function () {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-  if (scrollTop + clientHeight >= scrollHeight - 50) {
-    loadMoreImages();
+  const searchT = document.getElementById("searchInput").value;
+  const threshold = Math.min(100, clientHeight * 0.1);
+
+  if (scrollTop + clientHeight >= scrollHeight - threshold) {
+    if (
+      !isListenerLoading &&
+      searchT != null &&
+      searchT.trim() !== "" &&
+      loadMoreCount < 3
+    ) {
+      isListenerLoading = true; // Set the flag to true indicating loading has started
+      loadMoreCount += 1;
+      searchImages_serper()
+        .then(() => {
+          isListenerLoading = false; // Reset the flag once loading is complete
+        })
+        .catch(() => {
+          isListenerLoading = false; // Also reset the flag in case of an error
+        });
+    }
   }
+  //wdw
 });
+
 function openNewPageWithParams(baseUrl, params) {
   var queryParams = Object.keys(params)
     .map(
@@ -402,4 +429,64 @@ async function searchDatabaseImage() {
   }
 
   return postList;
+}
+async function searchImages() {
+  const searchTerm = document.getElementById("searchInput").value;
+  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
+  var cx = "a665304788edd4dd0";
+  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
+
+  const cardContainer = document.getElementById("cardContainer");
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const images = data.items
+      ? data.items.map((item) => ({
+          link: item.link,
+          title: item.title,
+          thumb: item.image.thumbnailLink,
+          contextLink: item.image.contextLink,
+        }))
+      : [];
+    //console.log(data.items);
+    displayImages(images);
+    start += perPage;
+  } catch (error) {
+    console.error("searchImages", error);
+  }
+}
+
+async function loadMoreImages() {
+  if (!shouldLoadMoreImages || isLoading) return;
+  isLoading = true;
+
+  const searchTerm = document.getElementById("searchInput").value;
+  if (!searchTerm) {
+    isLoading = false;
+    return;
+  }
+  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
+  var cx = "a665304788edd4dd0";
+  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const images = data.items
+      ? data.items.map((item) => ({
+          link: item.link,
+          title: item.title,
+          thumb: item.image.thumbnailLink,
+          contextLink: item.image.contextLink,
+        }))
+      : [];
+
+    displayImages(images);
+    start += perPage;
+  } catch (error) {
+    console.error("loadMoreImages", error);
+  } finally {
+    isLoading = false;
+  }
 }

@@ -298,20 +298,27 @@
       <div class="popup-content">
         <span class="close-button">&times;</span>
         <h2>Add New Image</h2>
+
+        <!-- Title Input -->
+        <label for="cardTitle">Title</label>
         <input
           type="text"
           id="cardTitle"
           placeholder="Title"
           style="width: 100%; padding: 8px; margin-bottom: 10px"
         />
-        <!-- Description input -->
+
+        <!-- Description Input -->
+        <label for="cardDescription">Describe your image</label>
         <textarea
           id="cardDescription"
           placeholder="Description"
           style="width: 100%; padding: 8px; margin-bottom: 10px"
           rows="4"
         ></textarea>
-        <!-- Div for image upload -->
+
+        <!-- Image Upload -->
+        <label for="imageInput">Upload Image</label>
         <div id="imageUploadContainer" class="image-upload-container">
           <span>Click to upload image</span>
           <img
@@ -325,8 +332,13 @@
             style="display: none"
           />
         </div>
+
+        <!-- Media Upload -->
+        <label for="mediaInput"
+          >Upload Video/Image Evidence of Creation Process</label
+        >
         <div id="mediaUploadContainer" class="media-upload-container">
-          <span>Click to upload media (Image, Video, Text, Audio)</span>
+          <span>Click to upload video/image evidence of creation process</span>
           <input
             type="file"
             id="mediaInput"
@@ -334,6 +346,18 @@
             style="display: none"
           />
         </div>
+
+        <!-- Link Evidence Input -->
+        <label for="cardlinkevidence"
+          >OR Link Evidence of Creation Process</label
+        >
+        <input
+          type="text"
+          id="cardlinkevidence"
+          placeholder="link evidence of creation process"
+          style="width: 100%; padding: 8px; margin-bottom: 10px"
+        />
+
         <button class="saveCard" id="saveCard">Save</button>
       </div>
     </div>
@@ -501,12 +525,15 @@
             document.getElementById("cardDescription").value;
           const imageFile = document.getElementById("imageInput").files[0];
           const mediaFile = document.getElementById("mediaInput").files[0];
+          const cardlinkevidence =
+            document.getElementById("cardlinkevidence").value;
 
           // Validate fields are not empty and at least one file is selected
           if (
             !title.trim() ||
             !description.trim() ||
-            (!imageFile && !mediaFile)
+            !imageFile ||
+            (!mediaFile && !cardlinkevidence)
           ) {
             alert("Please fill all fields and select at least one file.");
             return;
@@ -518,6 +545,11 @@
           formInformation.username = username;
           formInformation.verified = false;
           formInformation.timestamp = Date.now();
+          if (cardlinkevidence != null) {
+            formInformation.cardlinkevidence = cardlinkevidence;
+          } else {
+            formInformation.cardlinkevidence = "null";
+          }
 
           let userInformation = {};
           userInformation.username = username;
@@ -534,42 +566,69 @@
             .then((snapshot) => {
               getDownloadURL(snapshot.ref).then((url) => {
                 formInformation.Image = url;
-                uploadBytesResumable(
-                  ref(storage, "media/" + mediaFile.name),
-                  mediaFile
-                )
-                  .then((snapshot) => {
-                    getDownloadURL(snapshot.ref).then((media_url) => {
-                      formInformation.media_url = media_url;
+                if (mediaFile != null) {
+                  uploadBytesResumable(
+                    ref(storage, "media/" + mediaFile.name),
+                    mediaFile
+                  )
+                    .then((snapshot) => {
+                      getDownloadURL(snapshot.ref).then((media_url) => {
+                        formInformation.media_url = media_url;
 
-                      addDoc(collection(db, "database"), formInformation)
-                        .then((docRef) => {
-                          userInformation.posts.push(docRef.id);
-                          setDoc(doc(db, "artist", uid), userInformation)
-                            .then(() => {
-                              addCard(
-                                formInformation.title,
-                                formInformation.Image,
-                                docRef.id
-                              );
+                        addDoc(collection(db, "database"), formInformation)
+                          .then((docRef) => {
+                            userInformation.posts.push(docRef.id);
+                            setDoc(doc(db, "artist", uid), userInformation)
+                              .then(() => {
+                                addCard(
+                                  formInformation.title,
+                                  formInformation.Image,
+                                  docRef.id
+                                );
 
-                              document.getElementById(
-                                "cardPopup"
-                              ).style.display = "none";
-                              clearPopupFields();
-                            })
-                            .catch((error) => {
-                              console.error("Upload failed", error);
-                            });
+                                document.getElementById(
+                                  "cardPopup"
+                                ).style.display = "none";
+                                clearPopupFields();
+                              })
+                              .catch((error) => {
+                                console.error("Upload failed", error);
+                              });
+                          })
+                          .catch((error) => {
+                            console.error("Upload failed", error);
+                          });
+                      });
+                    })
+                    .catch((error) => {
+                      console.error("Upload failed", error);
+                    });
+                } else {
+                  formInformation.media_url = "null";
+
+                  addDoc(collection(db, "database"), formInformation)
+                    .then((docRef) => {
+                      userInformation.posts.push(docRef.id);
+                      setDoc(doc(db, "artist", uid), userInformation)
+                        .then(() => {
+                          addCard(
+                            formInformation.title,
+                            formInformation.Image,
+                            docRef.id
+                          );
+
+                          document.getElementById("cardPopup").style.display =
+                            "none";
+                          clearPopupFields();
                         })
                         .catch((error) => {
                           console.error("Upload failed", error);
                         });
+                    })
+                    .catch((error) => {
+                      console.error("Upload failed", error);
                     });
-                  })
-                  .catch((error) => {
-                    console.error("Upload failed", error);
-                  });
+                }
               });
             })
             .catch((error) => {
