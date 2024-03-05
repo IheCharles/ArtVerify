@@ -170,9 +170,10 @@ document
 
 async function searchImages_serper() {
   const searchTerm =
-    document.getElementById("searchInput").value + " before:2022";
+    document.getElementById("searchInput").value + " before:2021";
   previousSearchTerm = searchTerm;
   var myHeaders = new Headers();
+
   myHeaders.append("X-API-KEY", "5160e63fe264a319c1043d69f2eb13873aa44110");
   myHeaders.append("Content-Type", "application/json");
   previousSearchTerm;

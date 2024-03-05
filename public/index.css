@@ -59,17 +59,12 @@ svg {
   padding: 0.5rem 1rem;
   margin: 4px;
   border: 2px solid #ffb9d3;
-  background-color: transparent;
-  color: #ffb9d3;
+  background-color: #ffb9d3;
+  color: white;
   text-align: center;
   cursor: pointer;
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
   transition: background-color 0.3s, color 0.3s;
-}
-
-.contact-button:hover {
-  background-color: #ffb9d3;
-  color: white;
 }

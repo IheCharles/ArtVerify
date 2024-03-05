@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1,
+    maximum-scale=1.0, user-scalable=no"
+    />
     <title>Profile</title>
     <style>
       body {
@@ -10,6 +13,7 @@
         align-items: flex-start; /* Align items to the top */
         justify-content: center; /* Center items horizontally */
         height: 100vh;
+
         box-sizing: border-box;
         width: 100vw; /* Ensure the body covers the full viewport width */
         margin: 0; /* Reset any default margins */
@@ -50,21 +54,27 @@
         align-items: center; /* Center children horizontally */
         width: 100%;
       }
+      .card {
+        width: 200px;
+        height: 200px;
+        background-color: lightgray;
+        margin-bottom: 0px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.173);
+        overflow: hidden;
+      }
+
       .card-container {
-        flex-grow: 1;
-        height: auto;
-        width: 100%;
-        margin: "10em 0em 0em 0em";
+        display: grid;
+        justify-content: center; /* Centers the grid items */
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px; /* Adjust the space between cards */
+        margin: 10em auto; /* Center the container with auto left and right margins */
+        padding: 0 10px; /* Add padding inside the container if needed */
+        width: auto; /* Adjust based on your layout's needs */
+        max-width: 100%; /* Ensure the container does not overflow the viewport width */
         overflow-x: hidden; /* Prevent horizontal scrollbar */
         overflow-y: auto; /* Allow vertical scrolling if necessary */
-        display: grid;
-        overflow: auto;
-        grid-template-columns: repeat(
-          auto-fill,
-          minmax(200px, 1fr)
-        ); /* Dynamic columns based on content width */
-        gap: 10px; /* Adjust gap as needed */
-        padding: 20px; /* Ensure padding does not cause overflow */
       }
       .profile-container,
       .card-container {
@@ -97,6 +107,12 @@
         margin: 10px;
         text-align: center;
       }
+
+      .profile-link {
+        font-size: 18px;
+        margin: 10px;
+        text-align: center;
+      }
       .card,
       .add-card {
         border-radius: 4px;
@@ -108,18 +124,6 @@
 
       .post-button {
         margin-top: 10px;
-      }
-
-      .card {
-        width: 200px;
-        height: 200px;
-        background-color: lightgray;
-        margin-bottom: 0px;
-
-        border-radius: 10px;
-
-        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.173);
-        overflow: hidden;
       }
 
       .add-card {
@@ -182,9 +186,10 @@
         cursor: pointer;
       }
       .content-container {
-        display: grid;
         grid-template-columns: 1fr 2fr; /* Adjust the ratio as needed */
-        gap: 10px; /* Space between columns */
+
+        display: flex;
+        flex-direction: row; /* Default layout for larger screens */
       }
       .image-upload-container {
         margin: 20px 0;
@@ -274,6 +279,57 @@
         background-color: #ffbfd7;
         color: white;
         cursor: pointer;
+      }
+      @media (max-width: 600px) {
+        .content-container {
+          width: 100%;
+          flex-direction: column; /* Stack vertically on smaller screens */
+        }
+        .card-container {
+          grid-template-columns: repeat(
+            auto-fit,
+            minmax(150px, 1fr)
+          ); /* smaller min-width for cards */
+
+          .card {
+            width: 175px;
+            height: 175px; /* full width on small screens */
+          }
+
+          .add-card {
+            width: 175px;
+            height: 175px;
+          }
+        }
+        #close-cardClickPopup-button,
+        #src-cardClickPopup-button {
+          width: 100%;
+        }
+        body {
+          padding: 0;
+          margin: 0;
+          width: 100vw; /* This ensures they don't extend past the viewport width */
+          overflow-x: hidden; /* Prevents horizontal scrolling */
+        }
+
+        .profile-container,
+        .card-container {
+          /* Adjust padding and margin as needed to fit the content */
+          padding: 5px;
+          margin-top: 0;
+        }
+
+        .card,
+        .add-card {
+          margin: 5% auto; /* Centering cards */
+        }
+
+        /* Optional: Adjust profile and card container styles for mobile */
+        .profile-container,
+        .card-container {
+          width: 100%; /* Use the full width */
+          margin-top: 0; /* Reset or adjust spacing as needed */
+        }
       }
     </style>
     <link
@@ -449,7 +505,11 @@
       const incomingId = params.get("key");
       let postIds = [];
       let currentPostId = null;
-
+      document
+        .getElementById("cardClickPopup")
+        .addEventListener("click", function () {
+          hidePopup();
+        });
       document
         .getElementById("logoutButton")
         .addEventListener("click", function () {
@@ -788,7 +848,7 @@
             );
             editb.style.visibility = "visible";
             logoutb.style.visibility = "visible";
-            deletb.style.visibility = "visible";
+            //deletb.style.visibility = "visible";
             add_card_cardContainer.style.visibility = "visible";
             uid = user.uid;
             const docRef = doc(db, "artist", uid);

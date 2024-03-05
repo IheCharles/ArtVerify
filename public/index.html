@@ -152,22 +152,6 @@
         cursor: pointer;
       }
 
-      /* Responsive Card Sizes */
-      @media (max-width: 600px) {
-        .card {
-          width: 100%; /* full width on small screens */
-        }
-        .searchbar {
-          padding-left: 10px;
-          padding-right: 10px;
-          max-width: 20rem;
-        }
-        #close-cardClickPopup-button,
-        #src-cardClickPopup-button {
-          width: 100%;
-        }
-      }
-
       .card-click-popup {
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
@@ -195,6 +179,18 @@
             auto-fit,
             minmax(150px, 1fr)
           ); /* smaller min-width for cards */
+          .card {
+            width: 100%; /* full width on small screens */
+          }
+          .searchbar {
+            padding-left: 10px;
+            padding-right: 10px;
+            max-width: 20rem;
+          }
+        }
+        #close-cardClickPopup-button,
+        #src-cardClickPopup-button {
+          width: 100%;
         }
 
         .card {
@@ -268,7 +264,9 @@
 
     <div style="display: flex; justify-content: flex-end; padding: 0.5rem">
       <button id="nextPageButton" class="contact-button"></button>
-
+      <a href="about.html" class="contact-button" style="margin-left: 10px"
+        >why?</a
+      >
       <a
         href="mailto:cci29@drexel.edu"
         class="contact-button"
@@ -284,7 +282,7 @@
     </div>
 
     <div class="card-container" id="cardContainer"></div>
-    <div id="termsContainer" class="link-container">
+    <div id="termsContainer" class="link-container" style="display: none">
       <a
         href="https://www.termsandconditionsgenerator.com/live.php?token=jmvwTLExVANfKZ8rRhVNEXBpVub1iNsY"
         class="footer-link"
