@@ -294,27 +294,39 @@ function showPopup(postId) {
 function displayImages(images) {
   const cardContainer = document.getElementById("cardContainer");
 
+  const observer = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const card = entry.target;
+          const image = JSON.parse(card.getAttribute("postObject"));
+
+          const img = document.createElement("img");
+          img.onload = () => {
+            card.appendChild(img);
+          };
+          img.onerror = () => {
+            cardContainer.removeChild(card);
+          };
+          img.src = image.link;
+
+          observer.unobserve(card); // Stop observing the current card as it is already loaded
+        }
+      });
+    },
+    { rootMargin: "0px", threshold: 0.1 }
+  ); // Customize rootMargin and threshold as needed
+
   images.forEach((image) => {
     const card = document.createElement("div");
     card.classList.add("card");
     card.setAttribute("postObject", JSON.stringify(image));
-    //console.log(image);
+
     card.addEventListener("click", function (event) {
-      if (image.contextLink.includes("http")) {
+      if (image.contextLink && image.contextLink.includes("http")) {
         showGooglePopup(image);
       } else {
         showPopup(image.contextLink);
-      }
-    });
-
-    const img = document.createElement("img");
-    img.addEventListener("error", function () {
-      cardContainer.removeChild(card);
-    });
-    img.src = image.link;
-    fetchImageAndSetSrc(image.link).then((statusCode) => {
-      if (statusCode == 404) {
-        cardContainer.removeChild(card);
       }
     });
 
@@ -322,11 +334,13 @@ function displayImages(images) {
     titleElement.classList.add("card-title");
     titleElement.textContent = image.title;
 
-    card.appendChild(img);
     card.appendChild(titleElement);
     cardContainer.appendChild(card);
+
+    observer.observe(card); // Start observing the visibility of the card
   });
 }
+
 async function fetchImageAndSetSrc(url) {
   const response = await fetch(url);
 
@@ -430,64 +444,4 @@ async function searchDatabaseImage() {
   }
 
   return postList;
-}
-async function searchImages() {
-  const searchTerm = document.getElementById("searchInput").value;
-  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
-  var cx = "a665304788edd4dd0";
-  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
-
-  const cardContainer = document.getElementById("cardContainer");
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const images = data.items
-      ? data.items.map((item) => ({
-          link: item.link,
-          title: item.title,
-          thumb: item.image.thumbnailLink,
-          contextLink: item.image.contextLink,
-        }))
-      : [];
-    //console.log(data.items);
-    displayImages(images);
-    start += perPage;
-  } catch (error) {
-    console.error("searchImages", error);
-  }
-}
-
-async function loadMoreImages() {
-  if (!shouldLoadMoreImages || isLoading) return;
-  isLoading = true;
-
-  const searchTerm = document.getElementById("searchInput").value;
-  if (!searchTerm) {
-    isLoading = false;
-    return;
-  }
-  var apiKey = "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc";
-  var cx = "a665304788edd4dd0";
-  const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${searchTerm}+before:2021&searchType=image&start=${start}&num=${perPage}`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const images = data.items
-      ? data.items.map((item) => ({
-          link: item.link,
-          title: item.title,
-          thumb: item.image.thumbnailLink,
-          contextLink: item.image.contextLink,
-        }))
-      : [];
-
-    displayImages(images);
-    start += perPage;
-  } catch (error) {
-    console.error("loadMoreImages", error);
-  } finally {
-    isLoading = false;
-  }
 }
