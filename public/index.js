@@ -42,6 +42,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 const analytics = getAnalytics(app);
+const user = null;
 
 let bubblez = SVG("#maskBubblez");
 let numOfBubblez = 50;
@@ -83,9 +84,7 @@ for (let i = 0; i < numOfBubblez; i++) {
 
   drawCircleWithoutOverlap();
 }
-
 gsap.registerPlugin(ScrollTrigger);
-
 gsap.to("circle", {
   y: () =>
     1 - gsap.utils.random(0.1, 0.4) * (ScrollTrigger.maxScroll(window) / 4),
@@ -98,7 +97,6 @@ gsap.to("circle", {
   },
 });
 
-const user = null;
 auth.onAuthStateChanged(function (user) {
   const welcomeElement = document.getElementById("nextPageButton");
 
@@ -276,7 +274,13 @@ function showPopup(postId) {
         let image = data.Image;
         let description = data.description;
         let username = data.username;
-        currentUrl = data.uid;
+        console.log(data.source);
+        if (data.source != null) {
+          currentUrl = data.source;
+        } else {
+          currentUrl = data.uid;
+        }
+
         cardImage.src = image;
         cardImage.style.maxWidth = "100%";
         cardImage.style.maxHeight = "100%";
@@ -308,9 +312,18 @@ function displayImages(images) {
           img.onerror = () => {
             cardContainer.removeChild(card);
           };
+          img.addEventListener("error", function () {
+            cardContainer.removeChild(card);
+          });
+          fetchImageAndSetSrc(image.link).then((statusCode) => {
+            if (statusCode == 404) {
+              cardContainer.removeChild(card);
+            }
+          });
+
           img.src = image.link;
 
-          observer.unobserve(card); // Stop observing the current card as it is already loaded
+          observer.unobserve(card);
         }
       });
     },
@@ -351,7 +364,7 @@ let isListenerLoading = false; // Flag to indicate if loading is in progress
 window.addEventListener("scroll", function () {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
   const searchT = document.getElementById("searchInput").value;
-  const threshold = Math.min(100, clientHeight * 0.1);
+  const threshold = Math.min(100, clientHeight * 0.3);
 
   if (scrollTop + clientHeight >= scrollHeight - threshold) {
     if (
@@ -444,4 +457,32 @@ async function searchDatabaseImage() {
   }
 
   return postList;
+}
+
+function getPostParamValue(url) {
+  // Create a URL object from the given URL
+  const urlObj = new URL(url);
+  // Use URLSearchParams to work with the query string
+  const params = new URLSearchParams(urlObj.search);
+  // Get the value of the 'post' parameter
+  const postValue = params.get("post");
+  return postValue; // Returns null if the 'post' parameter is not present
+}
+
+// Function to check for and use the 'post' parameter from the URL
+function checkForAndUsePostParam(url) {
+  const postValue = getPostParamValue(url);
+  if (postValue) {
+    return postValue;
+  } else {
+    return null;
+  }
+}
+
+const url_endpoint = checkForAndUsePostParam(window.location.href);
+if (url_endpoint) {
+  console.log("url endpoint", url_endpoint);
+  showPopup(url_endpoint);
+} else {
+  console.log("url endpoint", "none");
 }

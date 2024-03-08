@@ -188,6 +188,10 @@
             max-width: 20rem;
           }
         }
+
+        #nextPageButton {
+          display: none;
+        }
         #close-cardClickPopup-button,
         #src-cardClickPopup-button {
           width: 100%;
@@ -261,18 +265,34 @@
         width="100"
       />
     </svg>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between; /* Adjusts alignment */
+        width: 100%; /* Ensures the div takes full width */
+      "
+    >
+      <!-- Left aligned buttons -->
+      <div style="display: flex; justify-content: flex-start">
+        <a id="nextPageButton" class="contact-button"></a>
+        <!-- Assuming 'Profile' for demonstration -->
+        <a href="donate.html" class="contact-button" style="margin-left: 10px"
+          >Donate</a
+        >
+      </div>
 
-    <div style="display: flex; justify-content: flex-end; padding: 0.5rem">
-      <a id="nextPageButton" class="contact-button"></a>
-      <a href="about.html" class="contact-button" style="margin-left: 10px"
-        >why?</a
-      >
-      <a
-        href="mailto:cci29@drexel.edu"
-        class="contact-button"
-        style="margin-left: 10px"
-        >Contact</a
-      >
+      <!-- Right aligned buttons -->
+      <div style="display: flex; justify-content: flex-end">
+        <a href="about.html" class="contact-button" style="margin-left: 10px"
+          >About</a
+        >
+        <a
+          href="mailto:cci29@drexel.edu"
+          class="contact-button"
+          style="margin-left: 10px; margin-right: 10px"
+          >Contact</a
+        >
+      </div>
     </div>
 
     <div class="searchbar-container">

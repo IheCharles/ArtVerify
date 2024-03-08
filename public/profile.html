@@ -257,7 +257,7 @@
         filter: grayscale(100%);
       }
       #delete-cardClickPopup-button {
-        width: 10%;
+        width: 5em;
         padding: 10px;
         border: none;
         margin-bottom: 10px;
@@ -269,7 +269,7 @@
         cursor: pointer;
       }
       #verify-cardClickPopup-button {
-        width: 20%;
+        width: 5em;
         padding: 10px;
         border: none;
         margin-bottom: 10px;
@@ -281,7 +281,7 @@
         cursor: pointer;
       }
       #close-cardClickPopup-button {
-        width: 10%;
+        width: 5em;
         padding: 10px;
         border: none;
         margin-bottom: 10px;
@@ -351,14 +351,14 @@
   </head>
   <body>
     <div id="cardClickPopup" class="card-click-popup" style="display: none">
-      <div class="popup-content">
+      <div id="popupContent" class="popup-content">
         <img id="cardClickPopup-cardImage" />
         <h2 id="cardClickPopup-cardTitle">Title</h2>
         <h2 id="cardClickPopup-cardDescription">description</h2>
 
         <button id="close-cardClickPopup-button">exit</button>
         <button id="close-cardClickPopup-button">Source</button>
-        <button id="verify-cardClickPopup-button">Verification link</button>
+        <button id="verify-cardClickPopup-button">Copy</button>
         <button id="delete-cardClickPopup-button" style="visibility: hidden">
           delete
         </button>
@@ -405,7 +405,8 @@
 
         <!-- Media Upload -->
         <label for="mediaInput"
-          >Upload Video/Image Evidence of Creation Process</label
+          >Upload Video/Image Evidence of Creation Process or Link Evidence of
+          Creation Process</label
         >
         <div id="mediaUploadContainer" class="media-upload-container">
           <span>Click to upload video/image evidence of creation process</span>
@@ -418,16 +419,19 @@
         </div>
 
         <!-- Link Evidence Input -->
-        <label for="cardlinkevidence"
-          >OR Link Evidence of Creation Process</label
-        >
         <input
           type="text"
           id="cardlinkevidence"
           placeholder="link evidence of creation process"
           style="width: 100%; padding: 8px; margin-bottom: 10px"
         />
-
+        <label for="mediaInput">External Source</label>
+        <input
+          type="text"
+          id="cardlinksource"
+          placeholder="if left empty source button will point to your profile"
+          style="width: 100%; padding: 8px; margin-bottom: 10px"
+        />
         <button class="saveCard" id="saveCard">Save</button>
       </div>
     </div>
@@ -519,10 +523,24 @@
       const incomingId = params.get("key");
       let postIds = [];
       let currentPostId = null;
+
+      //go back when button outside of popupContent is clicked
       document
         .getElementById("cardClickPopup")
         .addEventListener("click", function () {
-          hidePopup();
+          if (event.target.id == "cardClickPopup") {
+            hidePopup();
+            clearPopupFields();
+          }
+        });
+      document
+        .getElementById("verify-cardClickPopup-button")
+        .addEventListener("click", function () {
+          copyTextToClipboard(
+            `https://goliadsearch.com/?post=${currentPostId}`
+          );
+          document.getElementById("verify-cardClickPopup-button").textContent =
+            "Copied";
         });
       document
         .getElementById("logoutButton")
@@ -601,7 +619,8 @@
           const mediaFile = document.getElementById("mediaInput").files[0];
           const cardlinkevidence =
             document.getElementById("cardlinkevidence").value;
-
+          const cardlinksource =
+            document.getElementById("cardlinksource").value;
           // Validate fields are not empty and at least one file is selected
           if (
             !title.trim() ||
@@ -623,6 +642,11 @@
             formInformation.cardlinkevidence = cardlinkevidence;
           } else {
             formInformation.cardlinkevidence = "null";
+          }
+          if (cardlinksource != null) {
+            formInformation.source = cardlinksource;
+          } else {
+            formInformation.source = null;
           }
 
           let userInformation = {};
@@ -776,7 +800,15 @@
             cardImage.src = image;
             cardImage.style.maxWidth = "100%";
             cardImage.style.maxHeight = "100%";
-
+            if (!data.verified) {
+              document.getElementById(
+                "verify-cardClickPopup-button"
+              ).style.display = "none";
+            } else {
+              document.getElementById(
+                "verify-cardClickPopup-button"
+              ).style.display = "inline-block";
+            }
             cardTitle.textContent = title;
             cardDescription.textContent = description;
           }
@@ -809,6 +841,7 @@
         imgElement.style.objectFit = "cover";
         if (!isVerified) {
           imgElement.classList.add("greyed-out");
+          titleElement.textContent = "Verification in progress";
         }
 
         newCard.appendChild(imgElement);
@@ -824,6 +857,8 @@
         document.getElementById("cardDescription").value = "";
         document.getElementById("previewImage").style.display = "none";
         document.getElementById("previewImage").src = "";
+        document.getElementById("verify-cardClickPopup-button").textContent =
+          "Copy";
       }
 
       function populateCardContainer() {
@@ -939,6 +974,16 @@
             });
         }
       });
+      function copyTextToClipboard(text) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            console.log("Text copied to clipboard successfully!", text);
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+          });
+      }
     </script>
   </body>
 </html>
