@@ -149,6 +149,7 @@ document
         searchT.trim() !== "" &&
         previousSearchTerm != searchT + " before:2022"
       ) {
+        document.getElementById("searchInput").blur();
         while (cardContainer.firstChild) {
           cardContainer.removeChild(cardContainer.firstChild);
         }
@@ -168,11 +169,11 @@ document
 
 async function searchImages_serper() {
   const searchTerm =
-    document.getElementById("searchInput").value + " before:2021";
+    document.getElementById("searchInput").value + " before:2022";
   previousSearchTerm = searchTerm;
   var myHeaders = new Headers();
 
-  myHeaders.append("X-API-KEY", "5160e63fe264a319c1043d69f2eb13873aa44110");
+  myHeaders.append("X-API-KEY", "f0301b9841bb97df5355e933faa91330f21d5538");
   myHeaders.append("Content-Type", "application/json");
   previousSearchTerm;
   var raw = JSON.stringify({
@@ -327,7 +328,7 @@ function displayImages(images) {
         }
       });
     },
-    { rootMargin: "0px", threshold: 0.1 }
+    { rootMargin: "300px 0px", threshold: 0.1 }
   ); // Customize rootMargin and threshold as needed
 
   images.forEach((image) => {
