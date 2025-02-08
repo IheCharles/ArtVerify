@@ -342,6 +342,11 @@
           width: 100%; /* Use the full width */
           margin-top: 0; /* Reset or adjust spacing as needed */
         }
+        #youtube-container iframe {
+          border-radius: 15px; /* Adjust the radius as needed */
+          overflow: hidden; /* Ensures the corners are properly clipped */
+          border: none; /* Removes any default border */
+        }
       }
     </style>
     <link
@@ -355,7 +360,7 @@
         <img id="cardClickPopup-cardImage" />
         <h2 id="cardClickPopup-cardTitle">Title</h2>
         <h2 id="cardClickPopup-cardDescription">description</h2>
-
+        <div id="youtube-container"></div>
         <button id="close-cardClickPopup-button">exit</button>
         <button id="close-cardClickPopup-button">Source</button>
         <button id="verify-cardClickPopup-button">Copy</button>
@@ -403,33 +408,11 @@
           />
         </div>
 
-        <!-- Media Upload -->
-        <label for="mediaInput"
-          >Upload Video/Image Evidence of Creation Process or Link Evidence of
-          Creation Process</label
-        >
-        <div id="mediaUploadContainer" class="media-upload-container">
-          <span>Click to upload video/image evidence of creation process</span>
-          <input
-            type="file"
-            id="mediaInput"
-            accept="image/*,video/*,audio/*,text/plain"
-            style="display: none"
-          />
-        </div>
-
         <!-- Link Evidence Input -->
         <input
           type="text"
           id="cardlinkevidence"
-          placeholder="link evidence of creation process"
-          style="width: 100%; padding: 8px; margin-bottom: 10px"
-        />
-        <label for="mediaInput">External Source</label>
-        <input
-          type="text"
-          id="cardlinksource"
-          placeholder="if left empty source button will point to your profile"
+          placeholder="youtube link showing the creation process in any format preferred."
           style="width: 100%; padding: 8px; margin-bottom: 10px"
         />
         <button class="saveCard" id="saveCard">Save</button>
@@ -553,27 +536,7 @@
               console.log(error);
             });
         });
-      document
-        .getElementById("mediaUploadContainer")
-        .addEventListener("click", function () {
-          document.getElementById("mediaInput").click();
-        });
 
-      document
-        .getElementById("mediaInput")
-        .addEventListener("change", function (event) {
-          const file = event.target.files[0];
-          if (file) {
-            // Check file size
-            const fileSizeMB = file.size / 1024 / 1024; // Size in MB
-            if (fileSizeMB > 300) {
-              alert(
-                "File size exceeds 300 MB limit. Please choose a smaller file."
-              );
-              return; // Stop further execution
-            }
-          }
-        });
       document
         .getElementById("imageUploadContainer")
         .addEventListener("click", function () {
@@ -616,17 +579,15 @@
           const postDescription =
             document.getElementById("cardDescription").value;
           const imageFile = document.getElementById("imageInput").files[0];
-          const mediaFile = document.getElementById("mediaInput").files[0];
           const cardlinkevidence =
             document.getElementById("cardlinkevidence").value;
-          const cardlinksource =
-            document.getElementById("cardlinksource").value;
+
           // Validate fields are not empty and at least one file is selected
           if (
             !title.trim() ||
             !description.trim() ||
             !imageFile ||
-            (!mediaFile && !cardlinkevidence)
+            !cardlinkevidence
           ) {
             alert("Please fill all fields and select at least one file.");
             return;
@@ -643,11 +604,8 @@
           } else {
             formInformation.cardlinkevidence = "null";
           }
-          if (cardlinksource != null) {
-            formInformation.source = cardlinksource;
-          } else {
-            formInformation.source = null;
-          }
+
+          formInformation.source = null;
 
           let userInformation = {};
           userInformation.username = username;
@@ -664,69 +622,30 @@
             .then((snapshot) => {
               getDownloadURL(snapshot.ref).then((url) => {
                 formInformation.Image = url;
-                if (mediaFile != null) {
-                  uploadBytesResumable(
-                    ref(storage, "media/" + mediaFile.name),
-                    mediaFile
-                  )
-                    .then((snapshot) => {
-                      getDownloadURL(snapshot.ref).then((media_url) => {
-                        formInformation.media_url = media_url;
+                formInformation.media_url = "null";
 
-                        addDoc(collection(db, "database"), formInformation)
-                          .then((docRef) => {
-                            userInformation.posts.push(docRef.id);
-                            setDoc(doc(db, "artist", uid), userInformation)
-                              .then(() => {
-                                addCard(
-                                  formInformation.title,
-                                  formInformation.Image,
-                                  docRef.id
-                                );
+                addDoc(collection(db, "database"), formInformation)
+                  .then((docRef) => {
+                    userInformation.posts.push(docRef.id);
+                    setDoc(doc(db, "artist", uid), userInformation)
+                      .then(() => {
+                        addCard(
+                          formInformation.title,
+                          formInformation.Image,
+                          docRef.id
+                        );
 
-                                document.getElementById(
-                                  "cardPopup"
-                                ).style.display = "none";
-                                clearPopupFields();
-                              })
-                              .catch((error) => {
-                                console.error("Upload failed", error);
-                              });
-                          })
-                          .catch((error) => {
-                            console.error("Upload failed", error);
-                          });
+                        document.getElementById("cardPopup").style.display =
+                          "none";
+                        clearPopupFields();
+                      })
+                      .catch((error) => {
+                        console.error("Upload failed", error);
                       });
-                    })
-                    .catch((error) => {
-                      console.error("Upload failed", error);
-                    });
-                } else {
-                  formInformation.media_url = "null";
-
-                  addDoc(collection(db, "database"), formInformation)
-                    .then((docRef) => {
-                      userInformation.posts.push(docRef.id);
-                      setDoc(doc(db, "artist", uid), userInformation)
-                        .then(() => {
-                          addCard(
-                            formInformation.title,
-                            formInformation.Image,
-                            docRef.id
-                          );
-
-                          document.getElementById("cardPopup").style.display =
-                            "none";
-                          clearPopupFields();
-                        })
-                        .catch((error) => {
-                          console.error("Upload failed", error);
-                        });
-                    })
-                    .catch((error) => {
-                      console.error("Upload failed", error);
-                    });
-                }
+                  })
+                  .catch((error) => {
+                    console.error("Upload failed", error);
+                  });
               });
             })
             .catch((error) => {
@@ -777,6 +696,12 @@
         });
       function hidePopup() {
         document.getElementById("cardClickPopup").style.display = "none";
+        document.getElementById("youtube-container").innerHTML = "";
+        document.getElementById("cardClickPopup").style.display = "none";
+        document.getElementById("cardClickPopup-cardImage").src = "";
+        document.getElementById("cardClickPopup-cardTitle").textContent = "";
+        document.getElementById("cardClickPopup-cardDescription").textContent =
+          "";
       }
 
       function showPopup(postId) {
@@ -796,7 +721,7 @@
             let image = data.Image;
             let description = data.description;
             let username = data.username;
-
+            loadVideo(data.cardlinkevidence);
             cardImage.src = image;
             cardImage.style.maxWidth = "100%";
             cardImage.style.maxHeight = "100%";
@@ -983,6 +908,20 @@
           .catch((err) => {
             console.error("Failed to copy text: ", err);
           });
+      }
+      function loadVideo(url) {
+        const urlParams = new URL(url).searchParams;
+        const videoId = urlParams.get("v");
+        // Create iframe element
+        const iframe = document.createElement("iframe");
+        iframe.width = "560";
+        iframe.height = "315";
+        iframe.src = `https://www.youtube.com/embed/${videoId}`;
+        iframe.frameBorder = "0";
+        iframe.allowFullscreen = true;
+
+        // Append the iframe to our container
+        document.getElementById("youtube-container").appendChild(iframe);
       }
     </script>
   </body>

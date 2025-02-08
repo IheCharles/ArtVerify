@@ -164,6 +164,12 @@
         background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
       }
 
+      #youtube-container iframe {
+        border-radius: 15px; /* Adjust the radius as needed */
+        overflow: hidden; /* Ensures the corners are properly clipped */
+        border: none; /* Removes any default border */
+      }
+
       .popup-content {
         background-color: #fefefe;
         margin: 5% auto; /* 15% from the top and centered */
@@ -247,6 +253,8 @@
       <div class="popup-content">
         <img id="cardClickPopup-cardImage" />
         <h2 id="cardClickPopup-cardTitle">Title</h2>
+        <div id="youtube-player"></div>
+        <div id="youtube-container"></div>
         <button id="src-cardClickPopup-button">source</button>
         <button id="close-cardClickPopup-button">exit</button>
       </div>
@@ -290,10 +298,7 @@
         <a href="about.html" class="contact-button" style="margin-left: 10px"
           >About</a
         >
-        <a
-          href="mailto:cci29@drexel.edu"
-          class="contact-button"
-          style="margin-left: 10px; margin-right: 10px"
+        <a href="about.html" class="contact-button" style="margin-left: 10px"
           >Contact</a
         >
       </div>
@@ -306,7 +311,7 @@
     </div>
 
     <div class="card-container" id="cardContainer"></div>
-    <div id="termsContainer" class="link-container" style="display: none">
+    <div id="termsContainer" class="link-container">
       <a
         href="https://www.termsandconditionsgenerator.com/live.php?token=jmvwTLExVANfKZ8rRhVNEXBpVub1iNsY"
         class="footer-link"

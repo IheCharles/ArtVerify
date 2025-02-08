@@ -132,6 +132,8 @@ let currentUrl = null;
 let previousSearchTerm = null;
 let shouldLoadMoreImages = false;
 let loadMoreCount = 0;
+let player;
+
 document.getElementById("searchInput").addEventListener("input", function () {
   shouldLoadMoreImages = false;
 });
@@ -169,11 +171,11 @@ document
 
 async function searchImages_serper() {
   const searchTerm =
-    document.getElementById("searchInput").value + " before:2022";
+    document.getElementById("searchInput").value + " before:2023";
   previousSearchTerm = searchTerm;
   var myHeaders = new Headers();
 
-  myHeaders.append("X-API-KEY", "f0301b9841bb97df5355e933faa91330f21d5538");
+  myHeaders.append("X-API-KEY", "5160e63fe264a319c1043d69f2eb13873aa44110");
   myHeaders.append("Content-Type", "application/json");
   previousSearchTerm;
   var raw = JSON.stringify({
@@ -235,6 +237,8 @@ document
     }
   });
 function hidePopup() {
+  document.getElementById("cardClickPopup").style.display = "block";
+  document.getElementById("youtube-container").innerHTML = "";
   document.getElementById("cardClickPopup").style.display = "none";
 }
 
@@ -275,6 +279,7 @@ function showPopup(postId) {
         let image = data.Image;
         let description = data.description;
         let username = data.username;
+        loadVideo(data.cardlinkevidence);
         console.log(data.source);
         if (data.source != null) {
           currentUrl = data.source;
@@ -372,7 +377,7 @@ window.addEventListener("scroll", function () {
       !isListenerLoading &&
       searchT != null &&
       searchT.trim() !== "" &&
-      loadMoreCount < 3
+      loadMoreCount < 10
     ) {
       isListenerLoading = true; // Set the flag to true indicating loading has started
       loadMoreCount += 1;
@@ -486,4 +491,18 @@ if (url_endpoint) {
   showPopup(url_endpoint);
 } else {
   console.log("url endpoint", "none");
+}
+function loadVideo(url) {
+  const urlParams = new URL(url).searchParams;
+  const videoId = urlParams.get("v");
+  // Create iframe element
+  const iframe = document.createElement("iframe");
+  iframe.width = "560";
+  iframe.height = "315";
+  iframe.src = `https://www.youtube.com/embed/${videoId}`;
+  iframe.frameBorder = "0";
+  iframe.allowFullscreen = true;
+
+  // Append the iframe to our container
+  document.getElementById("youtube-container").appendChild(iframe);
 }
