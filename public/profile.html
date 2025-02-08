@@ -1,404 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1,
-    maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"
     />
     <title>Profile</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      body {
-        flex-direction: row; /* Ensures horizontal layout */
-        align-items: flex-start; /* Align items to the top */
-        justify-content: center; /* Center items horizontally */
-        height: 100vh;
-
-        box-sizing: border-box;
-        width: 100vw; /* Ensure the body covers the full viewport width */
-        margin: 0; /* Reset any default margins */
-        padding: 0; /* Reset any default padding */
-      }
-      .navbar {
-        list-style-type: none;
+      /* Reset & Base Styles */
+      * {
         margin: 0;
         padding: 0;
-        overflow: hidden;
-        background-color: #ffbfd7; /* Dark background */
+        box-sizing: border-box;
       }
-
-      .navbar li {
-        float: left; /* Align items horizontally */
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #fff;
+        color: #333;
+        line-height: 1.6;
       }
-
-      .navbar li a {
-        display: block;
-        color: white; /* Text color */
-        text-align: center;
-        padding: 14px 16px;
+      a {
         text-decoration: none;
       }
 
-      .navbar li a:hover {
-        background-color: #111; /* Change color on hover */
+      /* Optional Navbar */
+      .navbar {
+        display: flex;
+        justify-content: center;
+        background-color: #ffbfd7;
+        padding: 10px 0;
+      }
+      .navbar ul {
+        list-style: none;
+        display: flex;
+      }
+      .navbar ul li {
+        margin: 0 15px;
+      }
+      .navbar ul li a {
+        color: #fff;
+        font-weight: bold;
+        padding: 8px 12px;
+        transition: background-color 0.3s;
+      }
+      .navbar ul li a:hover {
+        background-color: #d69bb3;
+        border-radius: 4px;
       }
 
-      .profile-container {
-        flex-basis: 33.33%; /* Allocate 1/3 of the parent container's width */
-        height: 100%; /* Take full height of the viewport */
-        overflow: auto; /* Enable scrolling if content overflows */
-        display: flex; /* Enable flexbox */
-        box-sizing: border-box;
-        flex-direction: column; /* Stack children vertically */
-        justify-content: center; /* Center children vertically */
-        align-items: center; /* Center children horizontally */
-        width: 100%;
-      }
-      .card {
-        width: 200px;
-        height: 200px;
-        background-color: lightgray;
-        margin-bottom: 0px;
-        border-radius: 10px;
-        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.173);
-        overflow: hidden;
+      /* Container */
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
       }
 
-      .card-container {
-        display: grid;
-        justify-content: center; /* Centers the grid items */
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px; /* Adjust the space between cards */
-        margin: 10em auto; /* Center the container with auto left and right margins */
-        padding: 0 10px; /* Add padding inside the container if needed */
-        width: auto; /* Adjust based on your layout's needs */
-        max-width: 100%; /* Ensure the container does not overflow the viewport width */
-        overflow-x: hidden; /* Prevent horizontal scrollbar */
-        overflow-y: auto; /* Allow vertical scrolling if necessary */
+      /* Profile Section */
+      .profile-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        text-align: center;
       }
-      .profile-container,
-      .card-container {
-        margin-top: 50px; /* Adjust as needed */
-      }
-
-      .profile-container {
-        /* Ensure both containers can scroll independently if content overflows */
-        overflow: auto;
-        height: 100%;
-        width: 100%; /* Take full height of the viewport */
-      }
-
       .profile-image {
         width: 150px;
         height: 150px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid #dddddd;
+        border: 4px solid #ffbfd7;
+        margin-bottom: 20px;
       }
-
       .profile-name {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 10px;
+        font-size: 2rem;
+        margin-bottom: 10px;
       }
-
       .profile-description {
-        font-size: 18px;
-        margin: 10px;
-        text-align: center;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        color: #666;
       }
-
       .profile-link {
-        font-size: 18px;
-        margin: 10px;
-        text-align: center;
+        font-size: 1rem;
+        margin-bottom: 20px;
+        color: #ffbfd7;
+        text-decoration: underline;
       }
-      .card,
-      .add-card {
-        border-radius: 4px;
-      }
-
-      .edit-button {
-        margin-top: 10px;
-      }
-
-      .post-button {
-        margin-top: 10px;
-      }
-
-      .add-card {
-        width: 200px;
-        height: 200px;
-        background-color: #f0f0f0; /* Light grey, adjust as needed */
+      .profile-buttons {
         display: flex;
-        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.173);
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .btn {
+        background-color: #ffbfd7;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .btn:hover {
+        background-color: #d69bb3;
+      }
+
+      /* Content Section (Cards Gallery) */
+      .content-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
+      .card {
+        background-color: #f5f5f5;
         border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        position: relative;
+        transition: transform 0.3s;
+        cursor: pointer;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+      }
+      .card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+      .card h3 {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-size: 1rem;
+      }
+      .add-card {
+        display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 24px; /* Large plus sign */
-        cursor: pointer;
-      }
-      .card-popup {
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0, 0, 0); /* Fallback color */
-        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-      }
-      .card-click-popup {
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0, 0, 0); /* Fallback color */
-        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-      }
-
-      .popup-content {
-        background-color: #fefefe;
-        margin: 5% auto; /* 15% from the top and centered */
-        padding: 50px;
-
-        border-radius: 10px;
-        border: 1px solid #888;
-        width: 50%; /* Could be more or less, depending on screen size */
-      }
-
-      .close-button {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-      }
-
-      .close-button:hover,
-      .close-button:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-      }
-      .content-container {
-        grid-template-columns: 1fr 2fr; /* Adjust the ratio as needed */
-
-        display: flex;
-        flex-direction: row; /* Default layout for larger screens */
-      }
-      .image-upload-container {
-        margin: 20px 0;
-        padding: 10px;
+        background-color: #f0f0f0;
         border: 2px dashed #ccc;
-        text-align: center;
+        border-radius: 10px;
+        font-size: 3rem;
+        color: #aaa;
         cursor: pointer;
+        transition: background-color 0.3s;
+        height: 220px;
+      }
+      .add-card:hover {
+        background-color: #eaeaea;
       }
 
-      .saveCard {
-        width: 10%;
+      /* Modal Popup Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+      }
+      .modal-content {
+        background: #fff;
+        margin: 50px auto;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 600px;
+        position: relative;
+      }
+      .close-btn {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        font-size: 1.5rem;
+        color: #333;
+        cursor: pointer;
+      }
+      .modal-content h2 {
+        margin-bottom: 20px;
+        color: #ffbfd7;
+      }
+      .modal-content label {
+        display: block;
+        margin: 10px 0 5px;
+      }
+      .modal-content input[type="text"],
+      .modal-content textarea {
+        width: 100%;
         padding: 10px;
-        border: none;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #ffbfd7;
-        color: white;
-        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 5px;
       }
-
-      .image-upload-container:hover {
-        background-color: #f8f8f8;
-      }
-
+      .image-upload-container,
       .media-upload-container {
         margin: 20px 0;
-        padding: 10px;
+        padding: 20px;
         border: 2px dashed #ccc;
         text-align: center;
         cursor: pointer;
+        border-radius: 10px;
+        transition: background-color 0.3s;
       }
-
+      .image-upload-container:hover,
       .media-upload-container:hover {
         background-color: #f8f8f8;
       }
-
-      .logout-button {
-        width: 25%;
-        padding: 10px;
-        border: none;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: bold;
+      .saveCard {
         background-color: #ffbfd7;
-        color: white;
-        cursor: pointer;
-      }
-
-      .edit-button {
-        width: 25%;
-        padding: 10px;
+        color: #fff;
         border: none;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #ffbfd7;
-        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 1rem;
         cursor: pointer;
+        margin-top: 1rem;
+        transition: background-color 0.3s;
       }
-      .greyed-out {
-        filter: grayscale(100%);
+      .saveCard:hover {
+        background-color: #d69bb3;
       }
-      #delete-cardClickPopup-button {
-        width: 5em;
-        padding: 10px;
-        border: none;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #ffbfd7;
-        color: white;
-        cursor: pointer;
-      }
-      #verify-cardClickPopup-button {
-        width: 5em;
-        padding: 10px;
-        border: none;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #ffbfd7;
-        color: white;
-        cursor: pointer;
-      }
-      #close-cardClickPopup-button {
-        width: 5em;
-        padding: 10px;
-        border: none;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #ffbfd7;
-        color: white;
-        cursor: pointer;
-      }
-      @media (max-width: 600px) {
-        .content-container {
-          width: 100%;
-          flex-direction: column; /* Stack vertically on smaller screens */
-        }
-        .card-container {
-          grid-template-columns: repeat(
-            auto-fit,
-            minmax(150px, 1fr)
-          ); /* smaller min-width for cards */
 
-          .card {
-            width: 175px;
-            height: 175px; /* full width on small screens */
-          }
-
-          .add-card {
-            width: 175px;
-            height: 175px;
-          }
+      /* Responsive Adjustments */
+      @media (max-width: 768px) {
+        .profile-section {
+          padding: 20px;
         }
-        #close-cardClickPopup-button,
-        #src-cardClickPopup-button {
-          width: 100%;
+        .profile-name {
+          font-size: 1.8rem;
         }
-        body {
-          padding: 0;
-          margin: 0;
-          width: 100vw; /* This ensures they don't extend past the viewport width */
-          overflow-x: hidden; /* Prevents horizontal scrolling */
-        }
-
-        .profile-container,
-        .card-container {
-          /* Adjust padding and margin as needed to fit the content */
-          padding: 5px;
-          margin-top: 0;
-        }
-
-        .card,
-        .add-card {
-          margin: 5% auto; /* Centering cards */
-        }
-
-        /* Optional: Adjust profile and card container styles for mobile */
-        .profile-container,
-        .card-container {
-          width: 100%; /* Use the full width */
-          margin-top: 0; /* Reset or adjust spacing as needed */
-        }
-        #youtube-container iframe {
-          border-radius: 15px; /* Adjust the radius as needed */
-          overflow: hidden; /* Ensures the corners are properly clipped */
-          border: none; /* Removes any default border */
+        .profile-description {
+          font-size: 1rem;
         }
       }
     </style>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body>
-    <div id="cardClickPopup" class="card-click-popup" style="display: none">
-      <div id="popupContent" class="popup-content">
-        <img id="cardClickPopup-cardImage" />
+    <div class="container">
+      <!-- Profile Section -->
+      <section class="profile-section">
+        <img src="" class="profile-image" />
+        <h1 class="profile-name"></h1>
+        <p class="profile-description"></p>
+        <a href="#" class="profile-link"></a>
+        <div class="profile-buttons">
+          <button
+            id="editButton"
+            class="btn"
+            style="visibility: hidden"
+            onclick="window.location.href='getstarted.html'"
+          >
+            Edit
+          </button>
+          <button id="logoutButton" class="btn" style="visibility: hidden">
+            Logout
+          </button>
+        </div>
+      </section>
+
+      <!-- Content Section (Cards Gallery) -->
+      <section class="content-section" id="card-container">
+        <!-- Cards will be inserted dynamically -->
+        <div
+          class="add-card"
+          id="add-card-cardContainer"
+          style="visibility: hidden"
+        >
+          +
+        </div>
+      </section>
+    </div>
+
+    <!-- Card Click Popup Modal -->
+    <div id="cardClickPopup" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="close-cardClickPopup-button">&times;</span>
+        <img
+          id="cardClickPopup-cardImage"
+          src=""
+          alt="Card Image"
+          style="width: 100%; border-radius: 10px"
+        />
         <h2 id="cardClickPopup-cardTitle">Title</h2>
-        <h2 id="cardClickPopup-cardDescription">description</h2>
+        <p id="cardClickPopup-cardDescription">Description</p>
         <div id="youtube-container"></div>
-        <button id="close-cardClickPopup-button">exit</button>
-        <button id="close-cardClickPopup-button">Source</button>
-        <button id="verify-cardClickPopup-button">Copy</button>
-        <button id="delete-cardClickPopup-button" style="visibility: hidden">
-          delete
-        </button>
+        <div style="margin-top: 20px">
+          <button id="verify-cardClickPopup-button" class="btn">Copy</button>
+          <button
+            id="delete-cardClickPopup-button"
+            class="btn"
+            style="visibility: hidden"
+          >
+            Delete
+          </button>
+          <button id="src-cardClickPopup-button" class="btn">Source</button>
+        </div>
       </div>
     </div>
-    <div id="cardPopup" class="card-popup" style="display: none">
-      <div class="popup-content">
-        <span class="close-button">&times;</span>
+
+    <!-- Card Popup Modal (Add New Card) -->
+    <div id="cardPopup" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="close-cardPopup-button">&times;</span>
         <h2>Add New Image</h2>
-
-        <!-- Title Input -->
         <label for="cardTitle">Title</label>
-        <input
-          type="text"
-          id="cardTitle"
-          placeholder="Title"
-          style="width: 100%; padding: 8px; margin-bottom: 10px"
-        />
-
-        <!-- Description Input -->
+        <input type="text" id="cardTitle" placeholder="Title" />
         <label for="cardDescription">Describe your image</label>
         <textarea
           id="cardDescription"
           placeholder="Description"
-          style="width: 100%; padding: 8px; margin-bottom: 10px"
           rows="4"
         ></textarea>
-
-        <!-- Image Upload -->
         <label for="imageInput">Upload Image</label>
         <div id="imageUploadContainer" class="image-upload-container">
           <span>Click to upload image</span>
           <img
             id="previewImage"
-            style="display: none; max-width: 100%; max-height: 200px"
+            style="
+              display: none;
+              max-width: 100%;
+              max-height: 200px;
+              margin-top: 10px;
+            "
           />
           <input
             type="file"
@@ -407,52 +344,15 @@
             style="display: none"
           />
         </div>
-
-        <!-- Link Evidence Input -->
-        <input
-          type="text"
-          id="cardlinkevidence"
-          placeholder="youtube link showing the creation process in any format preferred."
-          style="width: 100%; padding: 8px; margin-bottom: 10px"
-        />
+        <label for="cardlinkevidence">
+          YouTube Link (evidence of creation)
+        </label>
+        <input type="text" id="cardlinkevidence" placeholder="YouTube link" />
         <button class="saveCard" id="saveCard">Save</button>
       </div>
     </div>
-    <div class="content-container">
-      <div class="profile-container">
-        <img class="profile-image" />
-        <h1 class="profile-name"></h1>
-        <p class="profile-description"></p>
-        <p class="profile-link"></p>
-        <button
-          class="edit-button"
-          style="visibility: hidden"
-          id="editButton"
-          onclick="window.location.href='getstarted.html'"
-        >
-          Edit
-        </button>
-        <button
-          style="visibility: hidden"
-          id="logoutButton"
-          class="logout-button"
-        >
-          Logout
-        </button>
-      </div>
 
-      <div id="card-container" class="card-container">
-        <!-- Add your card elements here -->
-        <div
-          class="add-card"
-          id="add-card-cardContainer"
-          style="visibility: hidden"
-        >
-          +
-        </div>
-      </div>
-    </div>
-
+    <!-- Scripts (Same as your original functionality code) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
       import {
@@ -507,15 +407,16 @@
       let postIds = [];
       let currentPostId = null;
 
-      //go back when button outside of popupContent is clicked
+      // Close popup when clicking outside modal content
       document
         .getElementById("cardClickPopup")
-        .addEventListener("click", function () {
-          if (event.target.id == "cardClickPopup") {
+        .addEventListener("click", function (event) {
+          if (event.target.id === "cardClickPopup") {
             hidePopup();
             clearPopupFields();
           }
         });
+
       document
         .getElementById("verify-cardClickPopup-button")
         .addEventListener("click", function () {
@@ -525,6 +426,7 @@
           document.getElementById("verify-cardClickPopup-button").textContent =
             "Copied";
         });
+
       document
         .getElementById("logoutButton")
         .addEventListener("click", function () {
@@ -559,17 +461,17 @@
         });
 
       document
-        .querySelector(".add-card")
+        .getElementById("add-card-cardContainer")
         .addEventListener("click", function () {
           document.getElementById("cardPopup").style.display = "block";
         });
 
       document
-        .querySelector(".close-button")
+        .getElementById("close-cardPopup-button")
         .addEventListener("click", function () {
           document.getElementById("cardPopup").style.display = "none";
-          document.getElementById("previewImage").style.display = "none"; // Hide image preview when closing popup
-          document.getElementById("previewImage").src = ""; // Remove the src to clear the preview
+          document.getElementById("previewImage").style.display = "none";
+          document.getElementById("previewImage").src = "";
         });
 
       document
@@ -582,39 +484,34 @@
           const cardlinkevidence =
             document.getElementById("cardlinkevidence").value;
 
-          // Validate fields are not empty and at least one file is selected
           if (
             !title.trim() ||
-            !description.trim() ||
+            !postDescription.trim() ||
             !imageFile ||
-            !cardlinkevidence
+            !cardlinkevidence.trim()
           ) {
             alert("Please fill all fields and select at least one file.");
             return;
           }
-          let formInformation = {};
-          formInformation.title = title;
-          formInformation.description = postDescription;
-          formInformation.uid = uid;
-          formInformation.username = username;
-          formInformation.verified = false;
-          formInformation.timestamp = Date.now();
-          if (cardlinkevidence != null) {
-            formInformation.cardlinkevidence = cardlinkevidence;
-          } else {
-            formInformation.cardlinkevidence = "null";
-          }
+          let formInformation = {
+            title: title,
+            description: postDescription,
+            uid: uid,
+            username: username,
+            verified: false,
+            timestamp: Date.now(),
+            cardlinkevidence: cardlinkevidence ? cardlinkevidence : "null",
+            source: null,
+          };
 
-          formInformation.source = null;
+          let userInformation = {
+            username: username,
+            profileImage: profileImage,
+            description: description,
+            link: link,
+            posts: postIds,
+          };
 
-          let userInformation = {};
-          userInformation.username = username;
-          userInformation.profileImage = profileImage;
-          userInformation.description = description;
-          userInformation.link = link;
-          userInformation.posts = postIds;
-
-          // document.querySelector(".profile-name").innerText;
           uploadBytesResumable(
             ref(storage, "images/" + imageFile.name),
             imageFile
@@ -634,7 +531,6 @@
                           formInformation.Image,
                           docRef.id
                         );
-
                         document.getElementById("cardPopup").style.display =
                           "none";
                         clearPopupFields();
@@ -691,13 +587,12 @@
             .catch((error) => {
               console.error("Upload failed", error);
             });
-
           hidePopup();
         });
+
       function hidePopup() {
         document.getElementById("cardClickPopup").style.display = "none";
         document.getElementById("youtube-container").innerHTML = "";
-        document.getElementById("cardClickPopup").style.display = "none";
         document.getElementById("cardClickPopup-cardImage").src = "";
         document.getElementById("cardClickPopup-cardTitle").textContent = "";
         document.getElementById("cardClickPopup-cardDescription").textContent =
@@ -707,7 +602,6 @@
       function showPopup(postId) {
         currentPostId = postId;
         document.getElementById("cardClickPopup").style.display = "block";
-
         const cardTitle = document.getElementById("cardClickPopup-cardTitle");
         const cardDescription = document.getElementById(
           "cardClickPopup-cardDescription"
@@ -720,11 +614,12 @@
             let title = data.title;
             let image = data.Image;
             let description = data.description;
-            let username = data.username;
-            loadVideo(data.cardlinkevidence);
+            if (data.cardlinkevidence) {
+              loadVideo(data.cardlinkevidence);
+            }
             cardImage.src = image;
-            cardImage.style.maxWidth = "100%";
-            cardImage.style.maxHeight = "100%";
+            cardTitle.textContent = title;
+            cardDescription.textContent = description;
             if (!data.verified) {
               document.getElementById(
                 "verify-cardClickPopup-button"
@@ -734,47 +629,31 @@
                 "verify-cardClickPopup-button"
               ).style.display = "inline-block";
             }
-            cardTitle.textContent = title;
-            cardDescription.textContent = description;
           }
         });
       }
 
       function addCard(title, imageSrc, postid, isVerified) {
-        const cardContainer = document.querySelector(".card-container");
+        const cardContainer = document.getElementById("card-container");
         const newCard = document.createElement("div");
         newCard.classList.add("card");
-
-        const titleElement = document.createElement("h3");
-        titleElement.textContent = title;
-
-        // Apply CSS styles to the titleElement
-        titleElement.style.color = "white"; // Makes the text color white
-        titleElement.style.fontSize = "16px"; // Sets the font size to 16px
-        titleElement.style.marginLeft = "10px";
-        titleElement.style.fontFamily = "Roboto, sans-serif";
-        titleElement.style.fontWeight = "bold";
-        newCard.appendChild(titleElement);
-        newCard.addEventListener("click", function (event) {
-          showPopup(postid);
-        });
+        newCard.setAttribute("postid", postid);
 
         const imgElement = document.createElement("img");
         imgElement.src = imageSrc;
-        imgElement.style.width = "100%";
-        imgElement.style.height = "100%";
-        imgElement.style.objectFit = "cover";
+        newCard.appendChild(imgElement);
+
+        const titleElement = document.createElement("h3");
+        titleElement.textContent = title;
         if (!isVerified) {
-          imgElement.classList.add("greyed-out");
           titleElement.textContent = "Verification in progress";
         }
-
-        newCard.appendChild(imgElement);
-        newCard.setAttribute("postid", postid);
-        const addCard = document.querySelector(".add-card");
-        document
-          .querySelector(".card-container")
-          .insertBefore(newCard, addCard);
+        newCard.appendChild(titleElement);
+        newCard.addEventListener("click", function () {
+          showPopup(postid);
+        });
+        const addCardDiv = document.getElementById("add-card-cardContainer");
+        cardContainer.insertBefore(newCard, addCardDiv);
       }
 
       function clearPopupFields() {
@@ -793,7 +672,6 @@
             .then((docSnap) => {
               if (docSnap.exists()) {
                 const postData = docSnap.data();
-
                 let title = postData.title;
                 let image = postData.Image;
                 let isVerified = postData.verified;
@@ -811,26 +689,17 @@
       auth.onAuthStateChanged(function (user) {
         if (incomingId == null) {
           if (user) {
-            console.log("user");
-            var editb = document.getElementById("editButton");
-            var logoutb = document.getElementById("logoutButton");
-            var deletb = document.getElementById(
-              "delete-cardClickPopup-button"
-            );
-            var add_card_cardContainer = document.getElementById(
-              "add-card-cardContainer"
-            );
-            editb.style.visibility = "visible";
-            logoutb.style.visibility = "visible";
-            //deletb.style.visibility = "visible";
-            add_card_cardContainer.style.visibility = "visible";
+            document.getElementById("editButton").style.visibility = "visible";
+            document.getElementById("logoutButton").style.visibility =
+              "visible";
+            document.getElementById("add-card-cardContainer").style.visibility =
+              "visible";
             uid = user.uid;
             const docRef = doc(db, "artist", uid);
             getDoc(docRef)
               .then((docSnap) => {
                 if (docSnap.exists()) {
                   const data = docSnap.data();
-
                   username = data.username;
                   description = data.description;
                   profileImage = data.profileImage;
@@ -868,7 +737,6 @@
             .then((docSnap) => {
               if (docSnap.exists()) {
                 const data = docSnap.data();
-
                 username = data.username;
                 description = data.description;
                 profileImage = data.profileImage;
@@ -899,6 +767,7 @@
             });
         }
       });
+
       function copyTextToClipboard(text) {
         navigator.clipboard
           .writeText(text)
@@ -912,15 +781,12 @@
       function loadVideo(url) {
         const urlParams = new URL(url).searchParams;
         const videoId = urlParams.get("v");
-        // Create iframe element
         const iframe = document.createElement("iframe");
         iframe.width = "560";
         iframe.height = "315";
         iframe.src = `https://www.youtube.com/embed/${videoId}`;
         iframe.frameBorder = "0";
         iframe.allowFullscreen = true;
-
-        // Append the iframe to our container
         document.getElementById("youtube-container").appendChild(iframe);
       }
     </script>
