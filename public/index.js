@@ -1,32 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
-  setPersistence,
-  browserLocalPersistence,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
+  onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
   getFirestore,
-  collection,
   getDoc,
-  addDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  arrayUnion,
   doc,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  uploadBytes,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 
+// Firebase configuration and initialization
 const firebaseConfig = {
   apiKey: "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc",
   authDomain: "artify-22dff.firebaseapp.com",
@@ -42,306 +27,212 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 const analytics = getAnalytics(app);
-const user = null;
 
-let bubblez = SVG("#maskBubblez");
-let numOfBubblez = 50;
+// Global state variables
+let currentPostId = null;
+let currentUrl = null;
+let previousSearchTerm = "";
+let serpStart = 1;
+let loadMoreCount = 0;
+let isListenerLoading = false;
 
-let circles = [{ x: 0, y: 0, radius: 0 }];
+/* ---------------------
+   BUBBLE ANIMATION
+--------------------- */
+function drawBubbles(numBubbles = 50) {
+  const bubblez = SVG("#maskBubblez");
+  const circles = [];
+  const maxAttempts = 100;
 
-for (let i = 0; i < numOfBubblez; i++) {
-  function drawCircleWithoutOverlap() {
-    let newX = gsap.utils.random(0, 100);
-    let newY = gsap.utils.random(0, 200);
-    let newRadius = gsap.utils.random(4, 20);
-    let newCircle = { x: newX, y: newY, radius: newRadius };
-    let isOverlapping = false;
+  for (let i = 0; i < numBubbles; i++) {
+    let attempts = 0;
+    let newCircle;
+    let isOverlapping;
 
-    circles.forEach((circle, i) => {
-      let deltaX = newCircle.x - circles[i].x;
-      let deltaY = newCircle.y - circles[i].y;
-      let dist = Math.hypot(deltaX, deltaY);
-      let radiiiis = circles[i].radius + newCircle.radius;
+    do {
+      newCircle = {
+        x: gsap.utils.random(0, 100),
+        y: gsap.utils.random(0, 200),
+        radius: gsap.utils.random(4, 20),
+      };
+      isOverlapping = circles.some((circle) => {
+        const deltaX = newCircle.x - circle.x;
+        const deltaY = newCircle.y - circle.y;
+        return Math.hypot(deltaX, deltaY) < circle.radius + newCircle.radius;
+      });
+      attempts++;
+    } while (isOverlapping && attempts < maxAttempts);
 
-      if (dist < radiiiis) {
-        isOverlapping = true;
-      }
-    });
-
-    if (isOverlapping) {
-      drawCircleWithoutOverlap();
-    } else {
+    if (!isOverlapping) {
       bubblez
         .circle(newCircle.radius)
         .x(newCircle.x)
         .y(newCircle.y)
         .fill("#fff")
         .opacity(newCircle.radius / 20);
-
       circles.push(newCircle);
     }
   }
-
-  drawCircleWithoutOverlap();
 }
-gsap.registerPlugin(ScrollTrigger);
-gsap.to("circle", {
-  y: () =>
-    1 - gsap.utils.random(0.1, 0.4) * (ScrollTrigger.maxScroll(window) / 4),
-  ease: "none",
-  scrollTrigger: {
-    start: 0,
-    end: "max",
-    invalidateOnRefresh: true,
-    scrub: 2,
-  },
-});
 
-auth.onAuthStateChanged(function (user) {
+function initScrollAnimation() {
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.to("circle", {
+    y: () =>
+      1 - gsap.utils.random(0.1, 0.4) * (ScrollTrigger.maxScroll(window) / 4),
+    ease: "none",
+    scrollTrigger: {
+      start: 0,
+      end: "max",
+      invalidateOnRefresh: true,
+      scrub: 2,
+    },
+  });
+}
+
+/* ---------------------
+   AUTHENTICATION
+--------------------- */
+onAuthStateChanged(auth, (user) => {
   const welcomeElement = document.getElementById("nextPageButton");
-
-  if (user) {
-    // User is signed in.
-    welcomeElement.textContent = "Profile";
-  } else {
-    // No user is signed in.
-    welcomeElement.textContent = "Login";
-  }
+  welcomeElement.textContent = user ? "Profile" : "Login";
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+/* ---------------------
+   INITIALIZATION & EVENT HANDLERS
+--------------------- */
+document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("searchInput").focus();
+  initEventListeners();
+  drawBubbles();
+  initScrollAnimation();
+  checkUrlForPost();
 });
-document
-  .getElementById("nextPageButton")
-  .addEventListener("click", function () {
+
+function initEventListeners() {
+  // Navigation button
+  document.getElementById("nextPageButton").addEventListener("click", () => {
     const welcomeElement = document.getElementById("nextPageButton");
-    if (welcomeElement.textContent === "Login") {
-      window.location.href = "login.html";
-    } else if (welcomeElement.textContent === "Profile") {
-      window.location.href = "profile.html";
-    }
+    window.location.href =
+      welcomeElement.textContent === "Login" ? "login.html" : "profile.html";
   });
 
-let start = 1;
-let serpStart = 1;
-const perPage = 10;
-let isLoading = false;
-let currentPostId = null;
-let currentUrl = null;
-let previousSearchTerm = null;
-let shouldLoadMoreImages = false;
-let loadMoreCount = 0;
-let player;
-
-document.getElementById("searchInput").addEventListener("input", function () {
-  shouldLoadMoreImages = false;
-});
-document
-  .getElementById("searchInput")
-  .addEventListener("keydown", async function (event) {
+  // Search input: trigger search on Enter key
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener("keydown", async (event) => {
     if (event.key === "Enter") {
-      const cardContainer = document.getElementById("cardContainer");
-      const searchT = document.getElementById("searchInput").value;
-      shouldLoadMoreImages = true;
-      serpStart = 1;
-
-      if (
-        searchT != null &&
-        searchT.trim() !== "" &&
-        previousSearchTerm != searchT + " before:2022"
-      ) {
-        document.getElementById("searchInput").blur();
-        while (cardContainer.firstChild) {
-          cardContainer.removeChild(cardContainer.firstChild);
-        }
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm && previousSearchTerm !== searchTerm + " before:2022") {
+        // Clear previous results
+        const cardContainer = document.getElementById("cardContainer");
+        cardContainer.innerHTML = "";
         document.getElementById("termsContainer").style.display = "none";
         loadMoreCount = 0;
-        searchDatabaseImage().then((postList) => {
-          displayImages(postList);
-        });
-        await searchImages_serper();
-        /*await loadMoreImages();
-      await loadMoreImages();
-      await loadMoreImages();
-      await loadMoreImages();*/
+        serpStart = 1;
+        previousSearchTerm = searchTerm + " before:2023"; // Note: check year filter consistency
+        const dbImages = await searchDatabaseImage(searchTerm);
+        displayImages(dbImages);
+        await searchImagesSerper(searchTerm);
       }
     }
   });
 
-async function searchImages_serper() {
-  const searchTerm =
-    document.getElementById("searchInput").value + " before:2023";
-  previousSearchTerm = searchTerm;
-  var myHeaders = new Headers();
+  // Popup close and source buttons
+  document
+    .getElementById("cardClickPopup")
+    .addEventListener("click", hidePopup);
+  document
+    .getElementById("close-cardClickPopup-button")
+    .addEventListener("click", () => {
+      currentPostId = null;
+      currentUrl = null;
+      hidePopup();
+    });
+  document
+    .getElementById("src-cardClickPopup-button")
+    .addEventListener("click", () => {
+      if (currentUrl && currentUrl.includes("http")) {
+        window.open(currentUrl);
+      } else {
+        openNewPageWithParams("profile.html", { key: currentUrl });
+      }
+    });
 
-  myHeaders.append("X-API-KEY", "5160e63fe264a319c1043d69f2eb13873aa44110");
-  myHeaders.append("Content-Type", "application/json");
-  previousSearchTerm;
-  var raw = JSON.stringify({
-    q: searchTerm,
-    num: 100,
-    page: serpStart,
-  });
-
-  var requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: raw,
-    redirect: "follow",
-  };
-
-  try {
-    const response = await fetch(
-      "https://google.serper.dev/images",
-      requestOptions
-    );
-    const data = await response.json();
-    serpStart += 1;
-    const images = data.images
-      ? data.images.map((item) => ({
-          link: item.imageUrl,
-          title: item.title,
-          contextLink: item.link,
-        }))
-      : [];
-    //console.log(data.items);
-    displayImages(images);
-  } catch (error) {
-    console.error("searchImages", error);
-  }
+  // Infinite scroll listener
+  window.addEventListener("scroll", onScrollLoadMore);
 }
 
-document
-  .getElementById("cardClickPopup")
-  .addEventListener("click", function () {
-    hidePopup();
-  });
-document
-  .getElementById("close-cardClickPopup-button")
-  .addEventListener("click", function () {
-    currentPostId = null;
-    currentUrl = null;
-    hidePopup();
-  });
-
-document
-  .getElementById("src-cardClickPopup-button")
-  .addEventListener("click", function () {
-    if (currentUrl.includes("http")) {
-      window.open(currentUrl);
-    } else {
-      openNewPageWithParams("profile.html", {
-        key: currentUrl,
-      });
-    }
-  });
+/* ---------------------
+   POPUP FUNCTIONS
+--------------------- */
 function hidePopup() {
-  document.getElementById("cardClickPopup").style.display = "block";
-  document.getElementById("youtube-container").innerHTML = "";
   document.getElementById("cardClickPopup").style.display = "none";
+  document.getElementById("youtube-container").innerHTML = "";
 }
 
 function showGooglePopup(image) {
   document.getElementById("cardClickPopup").style.display = "block";
-
-  const cardTitle = document.getElementById("cardClickPopup-cardTitle");
-  const cardDescription = document.getElementById(
-    "cardClickPopup-cardDescription"
-  );
+  document.getElementById("cardClickPopup-cardTitle").textContent = image.title;
   const cardImage = document.getElementById("cardClickPopup-cardImage");
-
-  currentUrl = image.contextLink;
   cardImage.src = image.link;
   cardImage.style.maxWidth = "100%";
   cardImage.style.maxHeight = "100%";
-
-  cardTitle.textContent = image.title;
+  currentUrl = image.contextLink;
 }
+
 function showPopup(postId) {
   currentPostId = postId;
-
-  //console.log("postid", postId);
   document.getElementById("cardClickPopup").style.display = "block";
-
   const cardTitle = document.getElementById("cardClickPopup-cardTitle");
-  const cardDescription = document.getElementById(
-    "cardClickPopup-cardDescription"
-  );
   const cardImage = document.getElementById("cardClickPopup-cardImage");
   const docRef = doc(db, "database", postId);
   getDoc(docRef)
     .then((docSnap) => {
-      //console.log(docSnap);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        let title = data.title;
-        let image = data.Image;
-        let description = data.description;
-        let username = data.username;
-        loadVideo(data.cardlinkevidence);
-        console.log(data.source);
-        if (data.source != null) {
-          currentUrl = data.source;
-        } else {
-          currentUrl = data.uid;
-        }
-
-        cardImage.src = image;
+        cardTitle.textContent = data.title;
+        cardImage.src = data.Image;
         cardImage.style.maxWidth = "100%";
         cardImage.style.maxHeight = "100%";
-
-        cardTitle.textContent = title;
-        cardDescription.textContent = description;
+        if (data.cardlinkevidence) {
+          loadVideo(data.cardlinkevidence);
+        }
+        currentUrl = data.source ? data.source : data.uid;
       } else {
-        console.log("docsnap does not exist");
+        console.error("Document does not exist");
       }
     })
-    .catch((error) => {
-      console.log("Error getting document:", error);
-    });
+    .catch((error) => console.error("Error getting document:", error));
 }
+
+/* ---------------------
+   IMAGE DISPLAY & SEARCH
+--------------------- */
 function displayImages(images) {
   const cardContainer = document.getElementById("cardContainer");
-
   const observer = new IntersectionObserver(
-    (entries, observer) => {
+    (entries, observerInstance) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const card = entry.target;
           const image = JSON.parse(card.getAttribute("postObject"));
-
-          const img = document.createElement("img");
-          img.onload = () => {
-            card.appendChild(img);
-          };
-          img.onerror = () => {
-            cardContainer.removeChild(card);
-          };
-          img.addEventListener("error", function () {
-            cardContainer.removeChild(card);
-          });
-          fetchImageAndSetSrc(image.link).then((statusCode) => {
-            if (statusCode == 404) {
-              cardContainer.removeChild(card);
-            }
-          });
-
+          const img = new Image();
+          img.onload = () => card.appendChild(img);
+          img.onerror = () => cardContainer.removeChild(card);
           img.src = image.link;
-
-          observer.unobserve(card);
+          observerInstance.unobserve(card);
         }
       });
     },
     { rootMargin: "300px 0px", threshold: 0.1 }
-  ); // Customize rootMargin and threshold as needed
+  );
 
   images.forEach((image) => {
     const card = document.createElement("div");
     card.classList.add("card");
     card.setAttribute("postObject", JSON.stringify(image));
 
-    card.addEventListener("click", function (event) {
+    card.addEventListener("click", () => {
       if (image.contextLink && image.contextLink.includes("http")) {
         showGooglePopup(image);
       } else {
@@ -352,73 +243,57 @@ function displayImages(images) {
     const titleElement = document.createElement("div");
     titleElement.classList.add("card-title");
     titleElement.textContent = image.title;
-
     card.appendChild(titleElement);
     cardContainer.appendChild(card);
-
-    observer.observe(card); // Start observing the visibility of the card
+    observer.observe(card);
   });
 }
 
-async function fetchImageAndSetSrc(url) {
-  const response = await fetch(url);
+async function searchImagesSerper(searchTerm) {
+  const query = searchTerm + " before:2023"; // Note: verify the desired year filter
+  const myHeaders = new Headers({
+    "X-API-KEY": "5160e63fe264a319c1043d69f2eb13873aa44110",
+    "Content-Type": "application/json",
+  });
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: JSON.stringify({ q: query, num: 100, page: serpStart }),
+  };
 
-  return response.status;
-}
-let isListenerLoading = false; // Flag to indicate if loading is in progress
-
-window.addEventListener("scroll", function () {
-  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-  const searchT = document.getElementById("searchInput").value;
-  const threshold = Math.min(100, clientHeight * 0.3);
-
-  if (scrollTop + clientHeight >= scrollHeight - threshold) {
-    if (
-      !isListenerLoading &&
-      searchT != null &&
-      searchT.trim() !== "" &&
-      loadMoreCount < 10
-    ) {
-      isListenerLoading = true; // Set the flag to true indicating loading has started
-      loadMoreCount += 1;
-      searchImages_serper()
-        .then(() => {
-          isListenerLoading = false; // Reset the flag once loading is complete
-        })
-        .catch(() => {
-          isListenerLoading = false; // Also reset the flag in case of an error
-        });
-    }
+  try {
+    const response = await fetch(
+      "https://google.serper.dev/images",
+      requestOptions
+    );
+    const data = await response.json();
+    serpStart++;
+    const images = data.images
+      ? data.images.map((item) => ({
+          link: item.imageUrl,
+          title: item.title,
+          contextLink: item.link,
+        }))
+      : [];
+    displayImages(images);
+    return images;
+  } catch (error) {
+    console.error("searchImagesSerper error:", error);
+    return [];
   }
-  //wdw
-});
-
-function openNewPageWithParams(baseUrl, params) {
-  var queryParams = Object.keys(params)
-    .map(
-      (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
-    )
-    .join("&");
-
-  var fullUrl = baseUrl + "?" + queryParams;
-
-  window.open(fullUrl, "_blank");
 }
-async function searchDatabaseImage() {
+
+async function searchDatabaseImage(searchTerm) {
   const API_KEY = "b24f6db5b074d956b3a2be18bf263f0f";
   const APPLICATION_ID = "M8UVF5EX0F";
-  const searchTerm = document.getElementById("searchInput").value;
   const url = `https://${APPLICATION_ID}-dsn.algolia.net/1/indexes/database/query`;
-  let postList = [];
-
   const headers = {
     "X-Algolia-API-Key": API_KEY,
     "X-Algolia-Application-Id": APPLICATION_ID,
     "Content-Type": "application/json",
   };
-
   const data = {
-    params: "query=" + searchTerm + "&hitsPerPage=2&getRankingInfo=1",
+    params: `query=${searchTerm}&hitsPerPage=2&getRankingInfo=1`,
   };
 
   try {
@@ -428,7 +303,7 @@ async function searchDatabaseImage() {
       body: JSON.stringify(data),
     });
     const searchData = await response.json();
-
+    const postList = [];
     if (searchData.hits && searchData.hits.length > 0) {
       for (const hit of searchData.hits) {
         const postRef = doc(db, "database", hit.objectID);
@@ -436,73 +311,74 @@ async function searchDatabaseImage() {
           const docSnap = await getDoc(postRef);
           if (docSnap.exists()) {
             const postData = docSnap.data();
-
-            let title = postData.title;
-            let image = postData.Image;
-            let description = postData.description;
-            let postUID = postData.uid;
-            let media_url = postData.media_url;
-            let username = postData.username;
             if (postData.verified) {
               postList.push({
-                link: image,
-                title: title,
+                link: postData.Image,
+                title: postData.title,
                 contextLink: hit.objectID,
               });
             }
           }
         } catch (error) {
-          console.log("Error getting document:", error);
+          console.error("Error getting document:", error);
         }
       }
     } else {
-      console.log("No hits found");
+      console.log("No hits found in database search");
     }
+    return postList;
   } catch (error) {
-    console.error("Error:", error);
+    console.error("searchDatabaseImage error:", error);
+    return [];
   }
+}
 
-  return postList;
+/* ---------------------
+   UTILITY FUNCTIONS
+--------------------- */
+function onScrollLoadMore() {
+  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+  const threshold = Math.min(100, clientHeight * 0.3);
+  const searchTerm = document.getElementById("searchInput").value.trim();
+
+  if (
+    scrollTop + clientHeight >= scrollHeight - threshold &&
+    searchTerm &&
+    loadMoreCount < 10 &&
+    !isListenerLoading
+  ) {
+    isListenerLoading = true;
+    loadMoreCount++;
+    searchImagesSerper(searchTerm).finally(() => (isListenerLoading = false));
+  }
+}
+
+function openNewPageWithParams(baseUrl, params) {
+  const queryParams = new URLSearchParams(params).toString();
+  window.open(`${baseUrl}?${queryParams}`, "_blank");
 }
 
 function getPostParamValue(url) {
-  // Create a URL object from the given URL
-  const urlObj = new URL(url);
-  // Use URLSearchParams to work with the query string
-  const params = new URLSearchParams(urlObj.search);
-  // Get the value of the 'post' parameter
-  const postValue = params.get("post");
-  return postValue; // Returns null if the 'post' parameter is not present
+  const params = new URL(url).searchParams;
+  return params.get("post");
 }
 
-// Function to check for and use the 'post' parameter from the URL
-function checkForAndUsePostParam(url) {
-  const postValue = getPostParamValue(url);
+function checkUrlForPost() {
+  const postValue = getPostParamValue(window.location.href);
   if (postValue) {
-    return postValue;
-  } else {
-    return null;
+    showPopup(postValue);
   }
 }
 
-const url_endpoint = checkForAndUsePostParam(window.location.href);
-if (url_endpoint) {
-  console.log("url endpoint", url_endpoint);
-  showPopup(url_endpoint);
-} else {
-  console.log("url endpoint", "none");
-}
 function loadVideo(url) {
-  const urlParams = new URL(url).searchParams;
-  const videoId = urlParams.get("v");
-  // Create iframe element
-  const iframe = document.createElement("iframe");
-  iframe.width = "560";
-  iframe.height = "315";
-  iframe.src = `https://www.youtube.com/embed/${videoId}`;
-  iframe.frameBorder = "0";
-  iframe.allowFullscreen = true;
-
-  // Append the iframe to our container
-  document.getElementById("youtube-container").appendChild(iframe);
+  const videoId = new URL(url).searchParams.get("v");
+  if (videoId) {
+    const iframe = document.createElement("iframe");
+    iframe.width = "560";
+    iframe.height = "315";
+    iframe.src = `https://www.youtube.com/embed/${videoId}`;
+    iframe.frameBorder = "0";
+    iframe.allowFullscreen = true;
+    document.getElementById("youtube-container").appendChild(iframe);
+  }
 }
