@@ -37,6 +37,19 @@ let loadMoreCount = 0;
 let isListenerLoading = false;
 
 /* ---------------------
+   HELPER: DEBOUNCE FUNCTION
+--------------------- */
+function debounce(func, delay) {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
+
+/* ---------------------
    BUBBLE ANIMATION
 --------------------- */
 function drawBubbles(numBubbles = 50) {
@@ -158,8 +171,8 @@ function initEventListeners() {
       }
     });
 
-  // Infinite scroll listener
-  window.addEventListener("scroll", onScrollLoadMore);
+  // Infinite scroll listener with debouncing (adjust delay as needed)
+  window.addEventListener("scroll", debounce(onScrollLoadMore, 200));
 }
 
 /* ---------------------
@@ -338,7 +351,7 @@ async function searchDatabaseImage(searchTerm) {
 --------------------- */
 function onScrollLoadMore() {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-  const threshold = Math.min(100, clientHeight * 0.3);
+  const threshold = Math.min(600, clientHeight * 0.5);
   const searchTerm = document.getElementById("searchInput").value.trim();
 
   if (
