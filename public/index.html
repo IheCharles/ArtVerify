@@ -109,22 +109,63 @@
         line-height: 1.2;
       }
 
-      .searchbar {
-        margin-left: auto; /* Center the search bar horizontally */
-        margin-right: auto; /* Center the search bar horizontally */
+      .search-wrapper {
+        position: relative;
+        margin-left: auto; /* Center the search wrapper horizontally */
+        margin-right: auto; /* Center the search wrapper horizontally */
         max-width: 50rem; /* Set a maximum width */
+        width: 100%;
+      }
+
+      .searchbar {
         width: 100%;
         padding: 10px;
         padding-left: 20px;
         padding-right: 20px;
         border-radius: 20px;
         font-size: 18px;
-
         border: 2px solid #ffbfd7;
+        /* Hide the default 'x' clear button */
+        -webkit-appearance: none;
+        appearance: none;
       }
+
+      /* Hide the clear button in IE */
+      .searchbar::-ms-clear {
+        display: none;
+      }
+
+      /* Hide the clear button in Chrome */
+      .searchbar::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+      }
+
       .searchbar:focus {
         outline: none; /* Removes the default focus outline */
         border-color: #ffbfd7; /* Keeps the border color pink when focused */
+      }
+
+      /* Loading spinner */
+      .spinner {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 191, 215, 0.3);
+        border-radius: 50%;
+        border-top-color: #ffbfd7;
+        animation: spin 1s ease-in-out infinite;
+        display: none;
+      }
+
+      @keyframes spin {
+        to {
+          transform: translateY(-50%) rotate(360deg);
+        }
       }
 
       #close-cardClickPopup-button {
@@ -195,9 +236,6 @@
           }
         }
 
-        #nextPageButton {
-          display: none;
-        }
         #close-cardClickPopup-button,
         #src-cardClickPopup-button {
           width: 100%;
@@ -307,7 +345,10 @@
     <div class="searchbar-container">
       <h1 class="landing-page-title">Goliad</h1>
       <h1 class="landing-page-subtitle">search engine for human made art</h1>
-      <input type="search" class="searchbar" id="searchInput" />
+      <div class="search-wrapper">
+        <input type="search" class="searchbar" id="searchInput" />
+        <div class="spinner" id="searchSpinner"></div>
+      </div>
     </div>
 
     <div class="card-container" id="cardContainer"></div>

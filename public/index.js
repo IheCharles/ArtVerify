@@ -104,6 +104,17 @@ function initScrollAnimation() {
 }
 
 /* ---------------------
+   LOADING ANIMATION CONTROL
+--------------------- */
+function showLoadingSpinner() {
+  document.getElementById("searchSpinner").style.display = "block";
+}
+
+function hideLoadingSpinner() {
+  document.getElementById("searchSpinner").style.display = "none";
+}
+
+/* ---------------------
    AUTHENTICATION
 --------------------- */
 onAuthStateChanged(auth, (user) => {
@@ -117,8 +128,11 @@ onAuthStateChanged(auth, (user) => {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("searchInput").focus();
   initEventListeners();
-  drawBubbles();
-  initScrollAnimation();
+  // Only initialize bubble animations for larger displays
+  if (window.innerWidth >= 768) {
+    drawBubbles(50);
+    initScrollAnimation();
+  }
   checkUrlForPost();
 });
 
@@ -136,6 +150,9 @@ function initEventListeners() {
     if (event.key === "Enter") {
       const searchTerm = searchInput.value.trim();
       if (searchTerm && previousSearchTerm !== searchTerm + " before:2022") {
+        // Show loading spinner
+        showLoadingSpinner();
+
         // Clear previous results
         const cardContainer = document.getElementById("cardContainer");
         cardContainer.innerHTML = "";
@@ -143,9 +160,17 @@ function initEventListeners() {
         loadMoreCount = 0;
         serpStart = 1;
         previousSearchTerm = searchTerm + " before:2023"; // Note: check year filter consistency
-        const dbImages = await searchDatabaseImage(searchTerm);
-        displayImages(dbImages);
-        await searchImagesSerper(searchTerm);
+
+        try {
+          const dbImages = await searchDatabaseImage(searchTerm);
+          displayImages(dbImages);
+          await searchImagesSerper(searchTerm);
+        } catch (error) {
+          console.error("Search error:", error);
+        } finally {
+          // Hide loading spinner when all searches are complete
+          hideLoadingSpinner();
+        }
       }
     }
   });
@@ -181,6 +206,7 @@ function initEventListeners() {
 function hidePopup() {
   document.getElementById("cardClickPopup").style.display = "none";
   document.getElementById("youtube-container").innerHTML = "";
+  document.getElementById("cardClickPopup-cardImage").src = "";
 }
 
 function showGooglePopup(image) {
@@ -207,7 +233,10 @@ function showPopup(postId) {
         cardImage.src = data.Image;
         cardImage.style.maxWidth = "100%";
         cardImage.style.maxHeight = "100%";
-        if (data.cardlinkevidence) {
+        if (
+          data.cardlinkevidence &&
+          data.cardlinkevidence.includes("youtube.com")
+        ) {
           loadVideo(data.cardlinkevidence);
         }
         currentUrl = data.source ? data.source : data.uid;
@@ -362,7 +391,11 @@ function onScrollLoadMore() {
   ) {
     isListenerLoading = true;
     loadMoreCount++;
-    searchImagesSerper(searchTerm).finally(() => (isListenerLoading = false));
+    showLoadingSpinner();
+    searchImagesSerper(searchTerm).finally(() => {
+      isListenerLoading = false;
+      hideLoadingSpinner();
+    });
   }
 }
 
