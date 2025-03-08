@@ -4,6 +4,7 @@ import {
   getDoc,
   doc,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { applyViewportScaling } from "./imageScaler.js";
 
 // Global state variables for popup
 let currentPostId = null;
@@ -109,7 +110,12 @@ export async function hidePopup() {
 
   if (popup) popup.style.display = "none";
   if (youtubeContainer) youtubeContainer.innerHTML = "";
-  if (cardImage) cardImage.src = "";
+  if (cardImage) {
+    cardImage.src = "";
+    // Reset any custom styling that was applied
+    cardImage.style.width = "";
+    cardImage.style.height = "";
+  }
 }
 
 // Show Google popup
@@ -128,8 +134,20 @@ export async function showGooglePopup(image) {
   popup.style.display = "flex";
   cardTitle.textContent = image.title;
   cardImage.src = image.link;
-  cardImage.style.maxWidth = "100%";
-  cardImage.style.maxHeight = "100%";
+
+  // Apply viewport scaling to the image
+  applyViewportScaling(cardImage)
+    .then(() => {
+      // Centering adjustments can be made here if needed
+      console.log("Image scaled successfully");
+    })
+    .catch((error) => {
+      console.error("Error scaling image:", error);
+      // Fallback to basic styling if scaling fails
+      cardImage.style.maxWidth = "100%";
+      cardImage.style.maxHeight = "100%";
+    });
+
   currentUrl = image.contextLink;
 }
 
@@ -147,7 +165,7 @@ export async function showPopup(postId) {
   }
 
   currentPostId = postId;
-  popup.style.display = "block";
+  popup.style.display = "flex";
 
   const docRef = doc(db, "database", postId);
   try {
@@ -156,14 +174,25 @@ export async function showPopup(postId) {
       const data = docSnap.data();
       cardTitle.textContent = data.title;
       cardImage.src = data.Image;
-      cardImage.style.maxWidth = "100%";
-      cardImage.style.maxHeight = "100%";
+
+      // Apply viewport scaling to the image
+      applyViewportScaling(cardImage)
+        .then(() => {
+          // Centering adjustments can be made here if needed
+          console.log("Image scaled successfully");
+        })
+        .catch((error) => {
+          console.error("Error scaling image:", error);
+          // Fallback to basic styling if scaling fails
+          cardImage.style.maxWidth = "100%";
+          cardImage.style.maxHeight = "100%";
+        });
 
       if (
         data.cardlinkevidence &&
         data.cardlinkevidence.includes("youtube.com")
       ) {
-        loadVideo(data.cardlinkevidence);
+        //loadVideo(data.cardlinkevidence);
       }
 
       currentUrl = data.source ? data.source : data.uid;

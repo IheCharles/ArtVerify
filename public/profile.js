@@ -1,12 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
-  setPersistence,
-  browserLocalPersistence,
-  createUserWithEmailAndPassword,
   signOut,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
   getFirestore,
@@ -14,9 +9,6 @@ import {
   getDoc,
   addDoc,
   setDoc,
-  updateDoc,
-  deleteDoc,
-  arrayUnion,
   doc,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import {
@@ -26,7 +18,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-
+import { initPopup, showPopup } from "./card-popup-profile.js";
 const firebaseConfig = {
   apiKey: "AIzaSyAQ3sc83x5CcAXW9NTt-NJUcT6C1Zzk6Fc",
   authDomain: "artify-22dff.firebaseapp.com",
@@ -52,24 +44,30 @@ let postIds = [];
 let currentPostId = null;
 let isUploading = false; // Flag to prevent multiple submissions
 
-// Close popup when clicking outside modal content
-document
-  .getElementById("cardClickPopup")
-  .addEventListener("click", function (event) {
-    if (event.target.id === "cardClickPopup") {
-      hidePopup();
-      clearPopupFields();
-    }
-  });
+// Initialize the popup module with Firestore instance
+initPopup(db);
 
-document
-  .getElementById("verify-cardClickPopup-button")
-  .addEventListener("click", function () {
-    copyTextToClipboard(`https://goliadsearch.com/?post=${currentPostId}`);
-    document.getElementById("verify-cardClickPopup-button").textContent =
-      "Copied";
-  });
+// Example of how to add card click handlers
+function setupCardEvents() {
+  const cards = document.querySelectorAll(".card");
 
+  cards.forEach((card) => {
+    card.addEventListener("click", function () {
+      const postId = this.dataset.postId;
+      if (postId) {
+        showPopup(postId);
+      }
+    });
+  });
+}
+
+// Set up your card events after document is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  // Your existing initialization code
+  initPopup(db);
+  // Set up card click handlers
+  setupCardEvents();
+});
 document.getElementById("logoutButton").addEventListener("click", function () {
   signOut(auth)
     .then(() => {
@@ -230,90 +228,6 @@ function resetUploadProgress() {
   document.getElementById("saveCard").textContent = "Save";
 }
 
-document
-  .getElementById("close-cardClickPopup-button")
-  .addEventListener("click", function () {
-    currentPostId = null;
-    hidePopup();
-  });
-
-document
-  .getElementById("delete-cardClickPopup-button")
-  .addEventListener("click", function () {
-    let userInformation = {};
-    postIds = postIds.filter((item) => item !== currentPostId);
-    userInformation.username = username;
-    userInformation.profileImage = profileImage;
-    userInformation.description = description;
-    userInformation.link = link;
-    userInformation.posts = postIds;
-    const docRef = doc(db, "database", currentPostId);
-    deleteDoc(docRef)
-      .then(() => {
-        setDoc(doc(db, "artist", uid), userInformation).catch((error) => {
-          console.error("Upload failed", error);
-        });
-
-        const cardContainer = document.getElementById("card-container");
-        const cardToRemove = cardContainer.querySelector(
-          `div[postid="${currentPostId}"]`
-        );
-
-        if (cardContainer && cardToRemove) {
-          cardContainer.removeChild(cardToRemove);
-        } else {
-          console.log("Element not found");
-        }
-      })
-      .catch((error) => {
-        console.error("Upload failed", error);
-      });
-    hidePopup();
-  });
-
-function hidePopup() {
-  document.getElementById("cardClickPopup").style.display = "none";
-  document.getElementById("youtube-container").innerHTML = "";
-  document.getElementById("cardClickPopup-cardImage").src = "";
-  document.getElementById("cardClickPopup-cardTitle").textContent = "";
-  document.getElementById("cardClickPopup-cardDescription").textContent = "";
-}
-
-function showPopup(postId) {
-  currentPostId = postId;
-  document.getElementById("cardClickPopup").style.display = "block";
-  const cardTitle = document.getElementById("cardClickPopup-cardTitle");
-  const cardDescription = document.getElementById(
-    "cardClickPopup-cardDescription"
-  );
-  const cardImage = document.getElementById("cardClickPopup-cardImage");
-  const docRef = doc(db, "database", postId);
-  getDoc(docRef).then((docSnap) => {
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      let title = data.title;
-      let image = data.Image;
-      let description = data.description;
-      if (
-        data.cardlinkevidence &&
-        data.cardlinkevidence.includes("youtube.com")
-      ) {
-        loadVideo(data.cardlinkevidence);
-      }
-      cardImage.src = image;
-      cardTitle.textContent = title;
-      cardDescription.textContent = description;
-      if (!data.verified) {
-        document.getElementById("verify-cardClickPopup-button").style.display =
-          "none";
-      } else {
-        document.getElementById("verify-cardClickPopup-button").style.display =
-          "inline-block";
-      }
-    }
-  });
-}
-
 function addCard(title, imageSrc, postid, isVerified) {
   const cardContainer = document.getElementById("card-container");
   const newCard = document.createElement("div");
@@ -445,25 +359,3 @@ auth.onAuthStateChanged(function (user) {
       });
   }
 });
-
-function copyTextToClipboard(text) {
-  navigator.clipboard
-    .writeText(text)
-    .then(() => {
-      console.log("Text copied to clipboard successfully!", text);
-    })
-    .catch((err) => {
-      console.error("Failed to copy text: ", err);
-    });
-}
-function loadVideo(url) {
-  const urlParams = new URL(url).searchParams;
-  const videoId = urlParams.get("v");
-  const iframe = document.createElement("iframe");
-  iframe.width = "560";
-  iframe.height = "315";
-  iframe.src = `https://www.youtube.com/embed/${videoId}`;
-  iframe.frameBorder = "0";
-  iframe.allowFullscreen = true;
-  document.getElementById("youtube-container").appendChild(iframe);
-}

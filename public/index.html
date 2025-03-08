@@ -295,33 +295,5 @@
     </div>
 
     <script type="module" src="index.js"></script>
-    <script>
-      // Load the popup module
-      document.addEventListener("DOMContentLoaded", function () {
-        fetch("popup.html")
-          .then((response) => response.text())
-          .then((html) => {
-            document.getElementById("popup-container").innerHTML = html;
-
-            // Set up event listeners for popup buttons after loading
-            document
-              .getElementById("close-cardClickPopup-button")
-              .addEventListener("click", function () {
-                document.getElementById("cardClickPopup").style.display =
-                  "none";
-              });
-
-            document
-              .getElementById("src-cardClickPopup-button")
-              .addEventListener("click", function () {
-                // Add your source button functionality here
-                console.log("Source button clicked");
-              });
-          })
-          .catch((error) => {
-            console.error("Error loading popup module:", error);
-          });
-      });
-    </script>
   </body>
 </html>

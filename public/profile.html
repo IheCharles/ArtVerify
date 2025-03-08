@@ -35,7 +35,7 @@
           </button>
         </div>
       </section>
-
+      <div id="popup-container"></div>
       <!-- Content Section (Cards Gallery) -->
       <section class="content-section" id="card-container">
         <!-- Cards will be inserted dynamically -->
@@ -47,33 +47,6 @@
           +
         </div>
       </section>
-    </div>
-
-    <!-- Card Click Popup Modal -->
-    <div id="cardClickPopup" class="modal">
-      <div class="modal-content">
-        <span class="close-btn" id="close-cardClickPopup-button">&times;</span>
-        <img
-          id="cardClickPopup-cardImage"
-          src=""
-          alt="Card Image"
-          style="width: 100%; border-radius: 10px"
-        />
-        <h2 id="cardClickPopup-cardTitle">Title</h2>
-        <p id="cardClickPopup-cardDescription">Description</p>
-        <div id="youtube-container"></div>
-        <div style="margin-top: 20px">
-          <button id="verify-cardClickPopup-button" class="btn">Copy</button>
-          <button
-            id="delete-cardClickPopup-button"
-            class="btn"
-            style="visibility: hidden"
-          >
-            Delete
-          </button>
-          <button id="src-cardClickPopup-button" class="btn">Source</button>
-        </div>
-      </div>
     </div>
 
     <!-- Card Popup Modal (Add New Card) -->
@@ -131,5 +104,6 @@
 
     <!-- Scripts (Same as your original functionality code) -->
     <script type="module" src="profile.js"></script>
+    <script type="module" src="card-popup-profile.js"></script>
   </body>
 </html>
