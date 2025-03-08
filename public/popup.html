@@ -38,6 +38,9 @@
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
         left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         top: 0;
         width: 100%; /* Full width */
         height: 100%; /* Full height */
@@ -54,11 +57,21 @@
 
       .popup-content {
         background-color: #fefefe;
-        margin: 5% auto; /* 15% from the top and centered */
+        margin: 5%;
         padding: 50px;
         border-radius: 10px;
+        display: flex;
+        max-width: 90vw;
+        max-height: 90vh;
+        flex-shrink: 0;
+        flex-direction: column;
         border: 1px solid #888;
         width: 50%; /* Could be more or less, depending on screen size */
+      }
+
+      .buttonContainer {
+        display: flex;
+        flex-direction: row;
       }
 
       @media (max-width: 600px) {
@@ -83,8 +96,10 @@
         <h2 id="cardClickPopup-cardTitle">Title</h2>
         <div id="youtube-player"></div>
         <div id="youtube-container"></div>
-        <button id="src-cardClickPopup-button">source</button>
-        <button id="close-cardClickPopup-button">exit</button>
+        <div id="buttonContainer">
+          <button id="src-cardClickPopup-button">source</button>
+          <button id="close-cardClickPopup-button">exit</button>
+        </div>
       </div>
     </div>
 

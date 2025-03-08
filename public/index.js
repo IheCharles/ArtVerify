@@ -10,6 +10,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+// Import popup module
+import { initPopup, showPopup, showGooglePopup } from "./popup.js";
 
 // Firebase configuration and initialization
 const firebaseConfig = {
@@ -28,13 +30,40 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const analytics = getAnalytics(app);
 
-// Global state variables
-let currentPostId = null;
-let currentUrl = null;
+// Global state variables (removed popup-related ones)
 let previousSearchTerm = "";
 let serpStart = 1;
 let loadMoreCount = 0;
 let isListenerLoading = false;
+
+// Initialize the popup module with Firestore instance
+initPopup(db);
+
+// Example of how to add card click handlers
+function setupCardEvents() {
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach((card) => {
+    card.addEventListener("click", function () {
+      const postId = this.dataset.postId;
+      if (postId) {
+        showPopup(postId);
+      } else if (this.dataset.googleImage) {
+        // For Google image results
+        const imageData = JSON.parse(this.dataset.googleImage);
+        showGooglePopup(imageData);
+      }
+    });
+  });
+}
+
+// Set up your card events after document is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  // Your existing initialization code
+
+  // Set up card click handlers
+  setupCardEvents();
+});
 
 /* ---------------------
    HELPER: DEBOUNCE FUNCTION
@@ -128,6 +157,8 @@ onAuthStateChanged(auth, (user) => {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("searchInput").focus();
   initEventListeners();
+  // Initialize popup module with Firestore instance
+  initPopup(db);
   // Only initialize bubble animations for larger displays
   if (window.innerWidth >= 768) {
     drawBubbles(50);
@@ -175,76 +206,10 @@ function initEventListeners() {
     }
   });
 
-  // Popup close and source buttons
-  document
-    .getElementById("cardClickPopup")
-    .addEventListener("click", hidePopup);
-  document
-    .getElementById("close-cardClickPopup-button")
-    .addEventListener("click", () => {
-      currentPostId = null;
-      currentUrl = null;
-      hidePopup();
-    });
-  document
-    .getElementById("src-cardClickPopup-button")
-    .addEventListener("click", () => {
-      if (currentUrl && currentUrl.includes("http")) {
-        window.open(currentUrl);
-      } else {
-        openNewPageWithParams("profile.html", { key: currentUrl });
-      }
-    });
+  // Note: Popup event listeners are now handled in the popup module
 
   // Infinite scroll listener with debouncing (adjust delay as needed)
   window.addEventListener("scroll", debounce(onScrollLoadMore, 200));
-}
-
-/* ---------------------
-   POPUP FUNCTIONS
---------------------- */
-function hidePopup() {
-  document.getElementById("cardClickPopup").style.display = "none";
-  document.getElementById("youtube-container").innerHTML = "";
-  document.getElementById("cardClickPopup-cardImage").src = "";
-}
-
-function showGooglePopup(image) {
-  document.getElementById("cardClickPopup").style.display = "block";
-  document.getElementById("cardClickPopup-cardTitle").textContent = image.title;
-  const cardImage = document.getElementById("cardClickPopup-cardImage");
-  cardImage.src = image.link;
-  cardImage.style.maxWidth = "100%";
-  cardImage.style.maxHeight = "100%";
-  currentUrl = image.contextLink;
-}
-
-function showPopup(postId) {
-  currentPostId = postId;
-  document.getElementById("cardClickPopup").style.display = "block";
-  const cardTitle = document.getElementById("cardClickPopup-cardTitle");
-  const cardImage = document.getElementById("cardClickPopup-cardImage");
-  const docRef = doc(db, "database", postId);
-  getDoc(docRef)
-    .then((docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        cardTitle.textContent = data.title;
-        cardImage.src = data.Image;
-        cardImage.style.maxWidth = "100%";
-        cardImage.style.maxHeight = "100%";
-        if (
-          data.cardlinkevidence &&
-          data.cardlinkevidence.includes("youtube.com")
-        ) {
-          loadVideo(data.cardlinkevidence);
-        }
-        currentUrl = data.source ? data.source : data.uid;
-      } else {
-        console.error("Document does not exist");
-      }
-    })
-    .catch((error) => console.error("Error getting document:", error));
 }
 
 /* ---------------------
@@ -399,11 +364,6 @@ function onScrollLoadMore() {
   }
 }
 
-function openNewPageWithParams(baseUrl, params) {
-  const queryParams = new URLSearchParams(params).toString();
-  window.open(`${baseUrl}?${queryParams}`, "_blank");
-}
-
 function getPostParamValue(url) {
   const params = new URL(url).searchParams;
   return params.get("post");
@@ -413,18 +373,5 @@ function checkUrlForPost() {
   const postValue = getPostParamValue(window.location.href);
   if (postValue) {
     showPopup(postValue);
-  }
-}
-
-function loadVideo(url) {
-  const videoId = new URL(url).searchParams.get("v");
-  if (videoId) {
-    const iframe = document.createElement("iframe");
-    iframe.width = "560";
-    iframe.height = "315";
-    iframe.src = `https://www.youtube.com/embed/${videoId}`;
-    iframe.frameBorder = "0";
-    iframe.allowFullscreen = true;
-    document.getElementById("youtube-container").appendChild(iframe);
   }
 }

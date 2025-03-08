@@ -125,7 +125,7 @@ export async function showGooglePopup(image) {
     return;
   }
 
-  popup.style.display = "block";
+  popup.style.display = "flex";
   cardTitle.textContent = image.title;
   cardImage.src = image.link;
   cardImage.style.maxWidth = "100%";
