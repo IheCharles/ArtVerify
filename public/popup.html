@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Popup Component</title>
+    <style>
+      #close-cardClickPopup-button {
+        width: 10%;
+        padding: 10px;
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffbfd7;
+        color: white;
+        cursor: pointer;
+      }
+
+      #src-cardClickPopup-button {
+        width: 10%;
+        padding: 10px;
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #ffbfd7;
+        color: white;
+        cursor: pointer;
+      }
+
+      .card-click-popup {
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0); /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+      }
+
+      #youtube-container iframe {
+        border-radius: 15px; /* Adjust the radius as needed */
+        overflow: hidden; /* Ensures the corners are properly clipped */
+        border: none; /* Removes any default border */
+      }
+
+      .popup-content {
+        background-color: #fefefe;
+        margin: 5% auto; /* 15% from the top and centered */
+        padding: 50px;
+        border-radius: 10px;
+        border: 1px solid #888;
+        width: 50%; /* Could be more or less, depending on screen size */
+      }
+
+      @media (max-width: 600px) {
+        #close-cardClickPopup-button,
+        #src-cardClickPopup-button {
+          width: 100%;
+        }
+
+        /* Adjust Popup Content Width */
+        .popup-content {
+          padding: 5px;
+          width: 80%; /* make popup content width responsive */
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Card Click Popup Modal -->
+    <div id="cardClickPopup" class="card-click-popup" style="display: none">
+      <div class="popup-content">
+        <img id="cardClickPopup-cardImage" />
+        <h2 id="cardClickPopup-cardTitle">Title</h2>
+        <div id="youtube-player"></div>
+        <div id="youtube-container"></div>
+        <button id="src-cardClickPopup-button">source</button>
+        <button id="close-cardClickPopup-button">exit</button>
+      </div>
+    </div>
+
+    <script>
+      // This script exports the popup content to be used by the main page
+      if (window.parent !== window) {
+        // If this page is loaded in an iframe or similar
+        window.parent.postMessage(
+          {
+            type: "popupContent",
+            content: document.getElementById("cardClickPopup").outerHTML,
+          },
+          "*"
+        );
+      }
+    </script>
+  </body>
+</html>
