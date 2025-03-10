@@ -8,11 +8,10 @@
     />
     <title>Popup Component</title>
     <style>
-      #close-cardClickPopup-button {
-        width: 10%;
+      .btn {
         padding: 10px;
         border: none;
-        margin-bottom: 10px;
+        margin: 0px 5px;
         border-radius: 4px;
         font-size: 16px;
         font-weight: bold;
@@ -21,17 +20,8 @@
         cursor: pointer;
       }
 
-      #src-cardClickPopup-button {
-        width: 10%;
-        padding: 10px;
-        border: none;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #ffbfd7;
-        color: white;
-        cursor: pointer;
+      .btn:hover {
+        background-color: #d69bb3;
       }
 
       .card-click-popup {
@@ -61,9 +51,6 @@
         padding: 50px;
         border-radius: 10px;
         display: flex;
-        max-width: 90vw;
-        max-height: 90vh;
-        flex-shrink: 0;
         flex-direction: column;
         border: 1px solid #888;
       }
@@ -71,33 +58,44 @@
       .buttonContainer {
         display: flex;
         flex-direction: row;
+        margin-top: 10px;
       }
 
-      @media (max-width: 600px) {
-        #close-cardClickPopup-button,
-        #src-cardClickPopup-button {
-          width: 100%;
-        }
-
+      @media (max-width: 700px) {
         /* Adjust Popup Content Width */
         .popup-content {
           padding: 5px;
-          width: 80%; /* make popup content width responsive */
         }
+      }
+      .cardClickPopup-cardDescription {
+        font-size: 1.5rem;
+        margin: 0;
+        display: flex;
+        flex-shrink: 0;
+        max-width: 70vw;
+      }
+      .cardClickPopup-cardTitle {
+        color: "black";
       }
     </style>
   </head>
   <body>
     <!-- Card Click Popup Modal -->
     <div id="cardClickPopup" class="card-click-popup" style="display: none">
-      <div class="popup-content">
+      <div class="popup-content" id="popup-content">
         <img id="cardClickPopup-cardImage" />
-        <h2 id="cardClickPopup-cardTitle">Title</h2>
+        <h2 id="cardClickPopup-cardTitle" class="cardClickPopup-cardTitle">
+          Title
+        </h2>
         <div id="youtube-player"></div>
         <div id="youtube-container"></div>
-        <div id="buttonContainer">
-          <button id="src-cardClickPopup-button">source</button>
-          <button id="close-cardClickPopup-button">exit</button>
+        <p
+          id="cardClickPopup-cardDescription"
+          class="cardClickPopup-cardDescription"
+        ></p>
+        <div id="buttonContainer" class="buttonContainer">
+          <button id="src-cardClickPopup-button" class="btn">source</button>
+          <button id="close-cardClickPopup-button" class="btn">exit</button>
         </div>
       </div>
     </div>

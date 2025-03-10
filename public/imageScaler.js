@@ -11,8 +11,10 @@ export function scaleImageToViewport(imageElement) {
   const viewportHeight = window.innerHeight;
 
   // Calculate 80% of viewport dimensions
-  const maxWidth = viewportWidth * 0.7;
-  const maxHeight = viewportHeight * 0.7;
+  const maxWidth =
+    viewportWidth < 700 ? viewportWidth * 0.9 : viewportWidth * 0.7;
+  const maxHeight =
+    viewportHeight < 700 ? viewportHeight * 0.9 : viewportHeight * 0.7;
 
   // Get the original image dimensions
   const originalWidth = imageElement.naturalWidth || imageElement.width;

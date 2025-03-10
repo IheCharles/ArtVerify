@@ -8,16 +8,16 @@
     <link rel="stylesheet" href="card-popup-profile.css" />
   </head>
   <body>
-    <div id="cardClickPopup" class="card-click-popup">
+    <div id="cardClickPopup" class="card-click-popup" style="display: none">
       <div class="popup-content">
-        <img id="cardClickPopup-cardImage" />
-        <h2 id="cardClickPopup-cardTitle">Title</h2>
+        <div class="image-container">
+          <img id="cardClickPopup-cardImage" />
+        </div>
+        <h2 id="cardClickPopup-cardTitle"></h2>
         <p
           id="cardClickPopup-cardDescription"
           class="cardClickPopup-cardDescription"
-        >
-          Description
-        </p>
+        ></p>
         <div id="youtube-container"></div>
         <div class="button-group">
           <button id="verify-cardClickPopup-button" class="btn">Copy</button>

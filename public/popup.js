@@ -107,7 +107,10 @@ export async function hidePopup() {
   const popup = document.getElementById("cardClickPopup");
   const youtubeContainer = document.getElementById("youtube-container");
   const cardImage = document.getElementById("cardClickPopup-cardImage");
-
+  const cardDescription = document.getElementById(
+    "cardClickPopup-cardDescription"
+  );
+  cardDescription.textContent = "";
   if (popup) popup.style.display = "none";
   if (youtubeContainer) youtubeContainer.innerHTML = "";
   if (cardImage) {
@@ -119,13 +122,16 @@ export async function hidePopup() {
 }
 
 // Show Google popup
+// In both showPopup and showGooglePopup functions, modify the image loading section
+
+// For showGooglePopup function:
 export async function showGooglePopup(image) {
   await ensurePopupLoaded();
 
   const popup = document.getElementById("cardClickPopup");
   const cardTitle = document.getElementById("cardClickPopup-cardTitle");
   const cardImage = document.getElementById("cardClickPopup-cardImage");
-
+  const popUpContent = document.getElementById("popup-content");
   if (!popup || !cardTitle || !cardImage) {
     console.error("Popup elements not found");
     return;
@@ -133,32 +139,41 @@ export async function showGooglePopup(image) {
 
   popup.style.display = "flex";
   cardTitle.textContent = image.title;
+
+  // Wait for the image to load before applying styles
+  cardImage.onload = function () {
+    // Apply viewport scaling to the image
+    applyViewportScaling(cardImage)
+      .then(() => {
+        // Set popup content dimensions based on the scaled image
+        popUpContent.style.width = cardImage.width + "px";
+        console.log("Image scaled successfully");
+      })
+      .catch((error) => {
+        console.error("Error scaling image:", error);
+        // Fallback to basic styling if scaling fails
+        cardImage.style.maxWidth = "100%";
+        cardImage.style.maxHeight = "100%";
+        popUpContent.style.width = cardImage.width + "px";
+      });
+  };
+
+  // Set src after setting up onload handler
   cardImage.src = image.link;
-
-  // Apply viewport scaling to the image
-  applyViewportScaling(cardImage)
-    .then(() => {
-      // Centering adjustments can be made here if needed
-      console.log("Image scaled successfully");
-    })
-    .catch((error) => {
-      console.error("Error scaling image:", error);
-      // Fallback to basic styling if scaling fails
-      cardImage.style.maxWidth = "100%";
-      cardImage.style.maxHeight = "100%";
-    });
-
   currentUrl = image.contextLink;
 }
 
-// Show popup for a post
+// For showPopup function:
 export async function showPopup(postId) {
   await ensurePopupLoaded();
 
   const popup = document.getElementById("cardClickPopup");
   const cardTitle = document.getElementById("cardClickPopup-cardTitle");
   const cardImage = document.getElementById("cardClickPopup-cardImage");
-
+  const popUpContent = document.getElementById("popup-content");
+  const cardDescription = document.getElementById(
+    "cardClickPopup-cardDescription"
+  );
   if (!popup || !cardTitle || !cardImage) {
     console.error("Popup elements not found");
     return;
@@ -173,20 +188,34 @@ export async function showPopup(postId) {
     if (docSnap.exists()) {
       const data = docSnap.data();
       cardTitle.textContent = data.title;
-      cardImage.src = data.Image;
 
-      // Apply viewport scaling to the image
-      applyViewportScaling(cardImage)
-        .then(() => {
-          // Centering adjustments can be made here if needed
-          console.log("Image scaled successfully");
-        })
-        .catch((error) => {
-          console.error("Error scaling image:", error);
-          // Fallback to basic styling if scaling fails
-          cardImage.style.maxWidth = "100%";
-          cardImage.style.maxHeight = "100%";
-        });
+      if (data.description) {
+        cardDescription.textContent = data.description;
+        cardDescription.style.display = "block";
+      } else {
+        cardDescription.style.display = "none";
+      }
+
+      // Wait for the image to load before applying styles
+      cardImage.onload = function () {
+        // Apply viewport scaling to the image
+        applyViewportScaling(cardImage)
+          .then(() => {
+            // Set popup content dimensions based on the scaled image
+            popUpContent.style.width = cardImage.width + "px";
+            console.log("Image scaled successfully");
+          })
+          .catch((error) => {
+            console.error("Error scaling image:", error);
+            // Fallback to basic styling if scaling fails
+            cardImage.style.maxWidth = "100%";
+            cardImage.style.maxHeight = "100%";
+            popUpContent.style.width = cardImage.width + "px";
+          });
+      };
+
+      // Set src after setting up onload handler
+      cardImage.src = data.Image;
 
       if (
         data.cardlinkevidence &&
